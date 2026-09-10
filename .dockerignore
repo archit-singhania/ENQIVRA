@@ -1,0 +1,11 @@
+.git
+.github
+.env
+**/node_modules
+**/target
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.dart_tool
+**/build
+**/dist

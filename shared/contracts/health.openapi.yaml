@@ -1,0 +1,8 @@
+openapi: 3.1.0
+info: {title: ENQIVRA Platform Health, version: 0.1.0}
+paths:
+  /api/v1/health:
+    get:
+      summary: Report service and dependency health
+      responses:
+        '200': {description: Health response}

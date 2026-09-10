@@ -8,7 +8,7 @@ ENQIVRA is a local-first Universal Physical Intelligence Platform. This reposito
 
 ## Current scope
 
-Phases 0 and 1 are complete: the Flutter client is connected to authenticated organization, asset, case, and evidence APIs. The project still intentionally includes no diagnosis, LangGraph agents, or trained models. See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed audit.
+Phases 0, 1, and 2 are complete: the Flutter client is connected to authenticated organization, asset, case, evidence, and universal ontology APIs. The project still intentionally includes no diagnosis, LangGraph agents, or trained models. See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed audit.
 
 ## Free and open-source stack
 

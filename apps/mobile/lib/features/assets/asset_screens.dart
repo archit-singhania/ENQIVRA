@@ -77,6 +77,10 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
   final serial = TextEditingController();
   bool busy = false;
   String? error;
+  String? ontologyCode;
+  late final Future<List<dynamic>> equipmentTypes = AppSession.instance.api
+      .get('/ontology/nodes?kind=EQUIPMENT_TYPE')
+      .then((value) => value as List<dynamic>);
   Future<void> save() async {
     if (name.text.trim().isEmpty || category.text.trim().isEmpty) {
       setState(() => error = 'Name and category are required');
@@ -92,7 +96,8 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
         'name': name.text.trim(),
         'category': category.text.trim(),
         'model': model.text.trim().isEmpty ? null : model.text.trim(),
-        'serialNumber': serial.text.trim().isEmpty ? null : serial.text.trim()
+        'serialNumber': serial.text.trim().isEmpty ? null : serial.text.trim(),
+        'ontologyCode': ontologyCode
       });
       if (mounted) context.pop();
     } catch (e) {
@@ -115,6 +120,22 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
             controller: category,
             decoration: const InputDecoration(
                 labelText: 'Category', border: OutlineInputBorder())),
+        const SizedBox(height: 14),
+        FutureBuilder<List<dynamic>>(
+            future: equipmentTypes,
+            builder: (context, snapshot) => DropdownButtonFormField<String>(
+                initialValue: ontologyCode,
+                decoration: const InputDecoration(
+                    labelText: 'Known equipment type (optional)',
+                    border: OutlineInputBorder()),
+                items: (snapshot.data ?? [])
+                    .map((item) => DropdownMenuItem<String>(
+                        value: item['code'] as String,
+                        child: Text('${item['name']} • ${item['domain']}')))
+                    .toList(),
+                onChanged: snapshot.hasData
+                    ? (value) => setState(() => ontologyCode = value)
+                    : null)),
         const SizedBox(height: 14),
         TextField(
             controller: model,

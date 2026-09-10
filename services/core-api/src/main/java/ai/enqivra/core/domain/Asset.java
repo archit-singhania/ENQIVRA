@@ -19,6 +19,9 @@ public class Asset {
   @Column(name = "manufacturer_id")
   private UUID manufacturerId;
 
+  @Column(name = "ontology_type_id")
+  private UUID ontologyTypeId;
+
   @Column(nullable = false)
   private String name;
 
@@ -48,7 +51,8 @@ public class Asset {
       String category,
       String model,
       String serialNumber,
-      LocalDate installedAt) {
+      LocalDate installedAt,
+      UUID ontologyTypeId) {
     this.id = UUID.randomUUID();
     this.organizationId = organizationId;
     this.manufacturerId = manufacturerId;
@@ -57,6 +61,7 @@ public class Asset {
     this.model = model;
     this.serialNumber = serialNumber;
     this.installedAt = installedAt;
+    this.ontologyTypeId = ontologyTypeId;
     this.status = "ACTIVE";
     this.createdAt = Instant.now();
   }
@@ -71,6 +76,10 @@ public class Asset {
 
   public UUID getManufacturerId() {
     return manufacturerId;
+  }
+
+  public UUID getOntologyTypeId() {
+    return ontologyTypeId;
   }
 
   public String getName() {

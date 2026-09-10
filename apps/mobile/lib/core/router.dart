@@ -3,6 +3,7 @@ import 'package:enqivra_mobile/features/auth/auth_screens.dart';
 import 'package:enqivra_mobile/features/assets/asset_screens.dart';
 import 'package:enqivra_mobile/features/cases/case_screens.dart';
 import 'package:enqivra_mobile/features/profile/profile_screen.dart';
+import 'package:enqivra_mobile/features/knowledge/knowledge_screens.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(initialLocation: '/login', routes: [
@@ -25,6 +26,12 @@ final router = GoRouter(initialLocation: '/login', routes: [
       builder: (context, state) =>
           CaseDetailScreen(caseId: state.pathParameters['id']!)),
   GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
+  GoRoute(
+      path: '/knowledge', builder: (context, state) => const KnowledgeScreen()),
+  GoRoute(
+      path: '/knowledge/:code',
+      builder: (context, state) =>
+          KnowledgeDetailScreen(code: state.pathParameters['code']!)),
   GoRoute(
       path: '/profile/members',
       builder: (context, state) => const OrganizationMembersScreen()),

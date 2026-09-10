@@ -41,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => context.push('/assets/add'),
             icon: const Icon(Icons.add),
             label: const Text('Add equipment')),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+            onPressed: () => context.push('/knowledge'),
+            icon: const Icon(Icons.account_tree_outlined),
+            label: const Text('Explore knowledge library')),
         const SizedBox(height: 28),
         Text('Workspace overview',
             style: Theme.of(context).textTheme.titleLarge),

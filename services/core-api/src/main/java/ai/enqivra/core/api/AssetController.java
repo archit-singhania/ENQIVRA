@@ -3,9 +3,11 @@ package ai.enqivra.core.api;
 import ai.enqivra.core.domain.Asset;
 import ai.enqivra.core.domain.AssetComponent;
 import ai.enqivra.core.domain.Manufacturer;
+import ai.enqivra.core.domain.OntologyNode;
 import ai.enqivra.core.repository.AssetComponentRepository;
 import ai.enqivra.core.repository.AssetRepository;
 import ai.enqivra.core.repository.ManufacturerRepository;
+import ai.enqivra.core.repository.OntologyNodeRepository;
 import ai.enqivra.core.service.AccessService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -31,16 +33,19 @@ public class AssetController {
   private final AssetComponentRepository components;
   private final ManufacturerRepository manufacturers;
   private final AccessService access;
+  private final OntologyNodeRepository ontologyNodes;
 
   public AssetController(
       AssetRepository assets,
       AssetComponentRepository components,
       ManufacturerRepository manufacturers,
-      AccessService access) {
+      AccessService access,
+      OntologyNodeRepository ontologyNodes) {
     this.assets = assets;
     this.components = components;
     this.manufacturers = manufacturers;
     this.access = access;
+    this.ontologyNodes = ontologyNodes;
   }
 
   public record AssetRequest(
@@ -49,7 +54,8 @@ public class AssetController {
       UUID manufacturerId,
       @Size(max = 160) String model,
       @Size(max = 160) String serialNumber,
-      LocalDate installedAt) {}
+      LocalDate installedAt,
+      @Size(max = 120) String ontologyCode) {}
 
   public record ManufacturerRequest(
       @NotBlank @Size(max = 160) String name, @Size(max = 500) String website) {}
@@ -80,6 +86,14 @@ public class AssetController {
             .filter(m -> m.getOrganizationId().equals(organizationId))
             .isEmpty())
       throw new IllegalArgumentException("Manufacturer does not belong to organization");
+    OntologyNode ontologyType = null;
+    if (r.ontologyCode() != null && !r.ontologyCode().isBlank()) {
+      ontologyType =
+          ontologyNodes
+              .findByCodeAndActiveTrue(r.ontologyCode())
+              .filter(n -> n.getKind().equals("EQUIPMENT_TYPE"))
+              .orElseThrow(() -> new IllegalArgumentException("Unknown equipment ontology type"));
+    }
     return assets.save(
         new Asset(
             organizationId,
@@ -88,7 +102,8 @@ public class AssetController {
             r.category(),
             r.model(),
             r.serialNumber(),
-            r.installedAt()));
+            r.installedAt(),
+            ontologyType == null ? null : ontologyType.getId()));
   }
 
   @GetMapping("/manufacturers")

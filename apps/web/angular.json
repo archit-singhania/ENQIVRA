@@ -1,1 +1,39 @@
-{"version":1,"newProjectRoot":"projects","projects":{"web":{"projectType":"application","root":"","sourceRoot":"src","prefix":"app","architect":{"build":{"builder":"@angular/build:application","options":{"browser":"src/main.ts","tsConfig":"tsconfig.app.json","assets":[{"glob":"**/*","input":"public"}],"styles":["src/styles.css"]}},"serve":{"builder":"@angular/build:dev-server","options":{"buildTarget":"web:build"}}}}}}
+{
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "web": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.css"
+            ]
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "web:build"
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

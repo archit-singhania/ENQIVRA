@@ -67,6 +67,12 @@ services:
       DB_USER: ${POSTGRES_USER:-enqivra}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-enqivra_dev_only}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      JWT_SECRET: ${JWT_SECRET:-change-this-development-secret-before-production-use}
+      ACCESS_TOKEN_MINUTES: ${ACCESS_TOKEN_MINUTES:-15}
+      REFRESH_TOKEN_DAYS: ${REFRESH_TOKEN_DAYS:-30}
+      EVIDENCE_STORAGE_PATH: /data/evidence
+    volumes:
+      - evidence_data:/data/evidence
     ports:
       - "${CORE_API_PORT:-8080}:8080"
     depends_on:
@@ -110,3 +116,4 @@ volumes:
   neo4j_data:
   neo4j_logs:
   valkey_data:
+  evidence_data:

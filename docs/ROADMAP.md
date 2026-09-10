@@ -5,7 +5,7 @@
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Monorepo, service/client shells, local data stack, CI, docs | Implemented foundation; full container runtime verification pending local Docker |
-| 1 | Auth, organizations, asset registry, cases, evidence | Not started |
+| 1 | Auth, organizations, asset registry, cases, evidence | Complete |
 | 2 | Universal ontology and HVAC/automotive/appliance packs | Not started |
 | 3 | Vision, audio, telemetry evidence intelligence | Not started |
 | 4 | Hybrid RAG, metadata, citations, evaluation | Not started |
@@ -23,4 +23,12 @@
 - FastAPI: OpenAPI documentation and a dependency-aware health endpoint.
 - Spring Boot: an API health endpoint and Actuator health.
 
-There is no login, equipment list, scanner, case workflow, upload UI, diagnosis, AI chat, or admin dashboard yet.
+Phase 1 adds login/registration, home, equipment list/add/scan placeholder, new-case/history, and profile screens. Camera OCR remains explicitly deferred to Phase 3. Diagnosis, AI chat, live evidence analysis, and the full operations dashboard do not exist yet.
+
+## Phase 1 audit
+
+Implemented: JWT access tokens, BCrypt passwords, rotating opaque refresh tokens stored as SHA-256 hashes, secure mobile session persistence, organization membership roles, tenant authorization, manufacturers, assets, nested components, diagnostic cases, local evidence-file storage, upload metadata, browser/mobile CORS, input validation, and a second Flyway migration.
+
+The Flutter application is connected to the Core API for registration, login, startup token refresh, logout, workspace counts, asset creation/listing, case creation/history, case evidence listing, and file evidence uploads. Empty, loading, and error states are included. Flutter web builds successfully and the source passes analysis and tests.
+
+The current RBAC policy allows OWNER, ADMIN, and TECHNICIAN to write while VIEWER is read-only. Registration creates one owner organization. Multi-organization invitation and membership management are intentionally left for the next Phase 1 hardening increment.

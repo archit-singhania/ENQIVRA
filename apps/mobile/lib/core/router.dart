@@ -18,6 +18,14 @@ final router = GoRouter(initialLocation: '/login', routes: [
       path: '/assets/scan',
       builder: (context, state) => const ScanAssetScreen()),
   GoRoute(
+      path: '/assets/:id',
+      builder: (context, state) =>
+          AssetDetailScreen(asset: state.extra! as Map<String, dynamic>)),
+  GoRoute(
+      path: '/assets/:id/components/add',
+      builder: (context, state) =>
+          AddComponentScreen(assetId: state.pathParameters['id']!)),
+  GoRoute(
       path: '/cases', builder: (context, state) => const CaseHistoryScreen()),
   GoRoute(
       path: '/cases/new', builder: (context, state) => const NewCaseScreen()),
@@ -35,4 +43,7 @@ final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(
       path: '/profile/members',
       builder: (context, state) => const OrganizationMembersScreen()),
+  GoRoute(
+      path: '/profile/workspaces',
+      builder: (context, state) => const WorkspacesScreen()),
 ]);

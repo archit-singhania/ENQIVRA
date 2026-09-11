@@ -46,5 +46,9 @@ public class OrganizationMember {
     return role;
   }
 
+  public void changeRole(Role role) {
+    this.role = role;
+  }
+
   public record Key(UUID organizationId, UUID userId) implements Serializable {}
 }

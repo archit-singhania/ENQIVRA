@@ -54,7 +54,10 @@ class _AssetsScreenState extends State<AssetsScreen> {
                               Icons.precision_manufacturing_outlined),
                           title: Text(item['name'] as String),
                           subtitle: Text(
-                              '${item['category']} • ${item['model'] ?? 'Model not set'}'))),
+                              '${item['category']} • ${item['model'] ?? 'Model not set'}'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/assets/${item['id']}',
+                              extra: item))),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                   onPressed: () => context.push('/assets/scan'),
@@ -177,4 +180,155 @@ class ScanAssetScreen extends StatelessWidget {
                     'For now, add manufacturer and model details manually.',
                     textAlign: TextAlign.center)
               ]))));
+}
+
+class AssetDetailScreen extends StatefulWidget {
+  const AssetDetailScreen({required this.asset, super.key});
+  final Map<String, dynamic> asset;
+  @override
+  State<AssetDetailScreen> createState() => _AssetDetailScreenState();
+}
+
+class _AssetDetailScreenState extends State<AssetDetailScreen> {
+  Future<List<dynamic>> load() async => await AppSession.instance.api
+      .get('/assets/${widget.asset['id']}/components') as List<dynamic>;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: Text(widget.asset['name'] as String), actions: [
+        IconButton(
+            tooltip: 'Add component',
+            onPressed: () async {
+              await context
+                  .push('/assets/${widget.asset['id']}/components/add');
+              if (mounted) setState(() {});
+            },
+            icon: const Icon(Icons.add))
+      ]),
+      body: FutureBuilder<List<dynamic>>(
+          future: load(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error.toString()));
+            }
+            final components = snapshot.data ?? [];
+            return ListView(padding: const EdgeInsets.all(20), children: [
+              Text(widget.asset['category'] as String,
+                  style: Theme.of(context).textTheme.titleLarge),
+              Text(widget.asset['model']?.toString() ?? 'Model not set'),
+              const SizedBox(height: 24),
+              Text('Components', style: Theme.of(context).textTheme.titleLarge),
+              if (components.isEmpty)
+                const Card(
+                    child: ListTile(
+                        title: Text('No components recorded'),
+                        subtitle: Text(
+                            'Add components to build this asset’s physical structure.')))
+              else
+                for (final component in components)
+                  Card(
+                      child: ListTile(
+                          leading: const Icon(Icons.settings_outlined),
+                          title: Text(component['name'] as String),
+                          subtitle: Text(component['componentType'] as String)))
+            ]);
+          }));
+}
+
+class AddComponentScreen extends StatefulWidget {
+  const AddComponentScreen({required this.assetId, super.key});
+  final String assetId;
+  @override
+  State<AddComponentScreen> createState() => _AddComponentScreenState();
+}
+
+class _AddComponentScreenState extends State<AddComponentScreen> {
+  final name = TextEditingController();
+  final type = TextEditingController();
+  String? ontologyCode;
+  String? error;
+  bool busy = false;
+  late final Future<List<dynamic>> types = AppSession.instance.api
+      .get('/ontology/nodes?kind=COMPONENT_TYPE')
+      .then((value) => value as List<dynamic>);
+
+  Future<void> save() async {
+    if (name.text.trim().isEmpty || type.text.trim().isEmpty) {
+      setState(() => error = 'Name and component type are required');
+      return;
+    }
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      await AppSession.instance.api
+          .post('/assets/${widget.assetId}/components', body: {
+        'name': name.text.trim(),
+        'componentType': type.text.trim(),
+        'ontologyCode': ontologyCode
+      });
+      if (mounted) context.pop();
+    } catch (e) {
+      setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    name.dispose();
+    type.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: const Text('Add component')),
+      body: ListView(padding: const EdgeInsets.all(20), children: [
+        TextField(
+            controller: name,
+            decoration: const InputDecoration(
+                labelText: 'Component name', border: OutlineInputBorder())),
+        const SizedBox(height: 14),
+        TextField(
+            controller: type,
+            decoration: const InputDecoration(
+                labelText: 'Component type', border: OutlineInputBorder())),
+        const SizedBox(height: 14),
+        FutureBuilder<List<dynamic>>(
+            future: types,
+            builder: (context, snapshot) => DropdownButtonFormField<String>(
+                initialValue: ontologyCode,
+                decoration: const InputDecoration(
+                    labelText: 'Known component type (optional)',
+                    border: OutlineInputBorder()),
+                items: (snapshot.data ?? [])
+                    .map((item) => DropdownMenuItem<String>(
+                        value: item['code'] as String,
+                        child: Text('${item['name']} • ${item['domain']}')))
+                    .toList(),
+                onChanged: snapshot.hasData
+                    ? (value) => setState(() {
+                          ontologyCode = value;
+                          final match = snapshot.data!
+                              .firstWhere((item) => item['code'] == value);
+                          type.text = match['name'] as String;
+                        })
+                    : null)),
+        if (error != null)
+          Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(error!,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.error))),
+        const SizedBox(height: 20),
+        FilledButton(
+            onPressed: busy ? null : save,
+            child: Text(busy ? 'Saving…' : 'Save component'))
+      ]));
 }

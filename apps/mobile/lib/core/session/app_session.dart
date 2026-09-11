@@ -8,7 +8,17 @@ class AppSession {
   final api = ApiClient(Environment.coreApiUrl);
   final storage = const FlutterSecureStorage();
   String? organizationId;
+  String? organizationRole;
   String? userName;
+
+  Future<void> switchOrganization(String id) async {
+    final organizations = await api.get('/organizations') as List<dynamic>;
+    final selected = organizations.firstWhere((item) => item['id'] == id);
+    organizationId = id;
+    organizationRole = selected['role'] as String;
+    await storage.write(key: 'organization_id', value: id);
+    await storage.write(key: 'organization_role', value: organizationRole);
+  }
 
   Future<bool> restore() async {
     try {
@@ -27,18 +37,22 @@ class AppSession {
     api.accessToken = result['accessToken'] as String;
     organizationId =
         (result['organization'] as Map<String, dynamic>)['id'] as String;
+    organizationRole =
+        (result['organization'] as Map<String, dynamic>)['role'] as String;
     userName =
         (result['user'] as Map<String, dynamic>)['displayName'] as String;
     await storage.write(key: 'access_token', value: api.accessToken);
     await storage.write(
         key: 'refresh_token', value: result['refreshToken'] as String);
     await storage.write(key: 'organization_id', value: organizationId);
+    await storage.write(key: 'organization_role', value: organizationRole);
     await storage.write(key: 'user_name', value: userName);
   }
 
   Future<void> logout() async {
     api.accessToken = null;
     organizationId = null;
+    organizationRole = null;
     userName = null;
     await storage.deleteAll();
   }

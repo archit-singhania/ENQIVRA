@@ -65,7 +65,8 @@ public class AssetController {
       @NotBlank @Size(max = 100) String componentType,
       @Size(max = 160) String model,
       @Size(max = 160) String serialNumber,
-      UUID parentComponentId) {}
+      UUID parentComponentId,
+      @Size(max = 120) String ontologyCode) {}
 
   @GetMapping("/assets")
   List<Asset> list(@RequestParam UUID organizationId, @AuthenticationPrincipal UUID userId) {
@@ -144,6 +145,14 @@ public class AssetController {
             .filter(c -> c.getAssetId().equals(assetId))
             .isEmpty())
       throw new IllegalArgumentException("Parent component does not belong to asset");
+    OntologyNode ontologyType = null;
+    if (r.ontologyCode() != null && !r.ontologyCode().isBlank()) {
+      ontologyType =
+          ontologyNodes
+              .findByCodeAndActiveTrue(r.ontologyCode())
+              .filter(n -> n.getKind().equals("COMPONENT_TYPE"))
+              .orElseThrow(() -> new IllegalArgumentException("Unknown component ontology type"));
+    }
     return components.save(
         new AssetComponent(
             assetId,
@@ -151,7 +160,8 @@ public class AssetController {
             r.componentType(),
             r.model(),
             r.serialNumber(),
-            r.parentComponentId()));
+            r.parentComponentId(),
+            ontologyType == null ? null : ontologyType.getId()));
   }
 
   private Asset ownedAsset(UUID id, UUID userId) {

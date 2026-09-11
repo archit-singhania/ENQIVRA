@@ -1,6 +1,7 @@
 package ai.enqivra.core.repository;
 
 import ai.enqivra.core.domain.OrganizationMember;
+import ai.enqivra.core.domain.Role;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,4 +14,6 @@ public interface OrganizationMemberRepository
   List<OrganizationMember> findByOrganizationId(UUID organizationId);
 
   Optional<OrganizationMember> findByOrganizationIdAndUserId(UUID organizationId, UUID userId);
+
+  long countByOrganizationIdAndRole(UUID organizationId, Role role);
 }

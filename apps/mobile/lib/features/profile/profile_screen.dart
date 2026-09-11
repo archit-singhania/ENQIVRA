@@ -28,6 +28,12 @@ class ProfileScreen extends StatelessWidget {
             leading: Icon(Icons.security_outlined),
             title: Text('Security'),
             subtitle: Text('JWT access and rotating refresh tokens')),
+        ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About the author'),
+            subtitle: const Text('Who built ENQIVRA'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/about-author')),
         const Spacer(),
         OutlinedButton.icon(
             onPressed: () async {

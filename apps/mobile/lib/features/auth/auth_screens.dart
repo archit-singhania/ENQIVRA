@@ -5,6 +5,28 @@ import 'package:enqivra_mobile/core/session/app_session.dart';
 import 'package:enqivra_mobile/core/theme.dart';
 import 'package:enqivra_mobile/shared/widgets/aurora_background.dart';
 import 'package:enqivra_mobile/shared/widgets/glass_panel.dart';
+import 'package:enqivra_mobile/shared/widgets/enqivra_logo.dart';
+
+/// Small frosted-glass "back to home" affordance used on both auth
+/// screens so a visitor can always retreat to the welcome/landing screen.
+class _BackHomeButton extends StatelessWidget {
+  const _BackHomeButton();
+  @override
+  Widget build(BuildContext context) => Align(
+      alignment: Alignment.centerLeft,
+      child: Material(
+          color: AppColors.glassFill,
+          shape: const CircleBorder(
+              side: BorderSide(color: AppColors.glassBorder)),
+          child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () =>
+                  context.canPop() ? context.pop() : context.go('/welcome'),
+              child: const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Icon(Icons.arrow_back_rounded,
+                      color: AppColors.textPrimary, size: 20)))));
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -50,31 +72,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SingleChildScrollView(
                       padding: const EdgeInsets.all(28),
                       child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 440),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Center(
-                                    child: Container(
-                                        width: 76,
-                                        height: 76,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: AppGradients.primaryButton,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: AppColors.primary
-                                                      .withOpacity(0.45),
-                                                  blurRadius: 44,
-                                                  spreadRadius: 2)
-                                            ]),
-                                        child: const Icon(Icons.hub_rounded,
-                                            color: Color(0xFF04140F), size: 36)))
-                                    .animate()
-                                    .fadeIn(duration: 500.ms)
-                                    .scale(
-                                        begin: const Offset(0.7, 0.7),
-                                        curve: Curves.easeOutBack),
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                          const _BackHomeButton()
+                          .animate()
+                      .fadeIn(duration: 400.ms),
+                      const SizedBox(height: 20),
+                      Center(
+                      child: const EnqivraLogo(size: 76))
+                      .animate()
+                      .fadeIn(duration: 500.ms)
+                      .scale(
+                      begin: const Offset(0.7, 0.7),
+                      curve: Curves.easeOutBack),
                                 const SizedBox(height: 20),
                                 Center(
                                         child: Text('ENQIVRA',
@@ -140,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                           child: CircularProgressIndicator(
                                                               strokeWidth: 2.4,
                                                               color:
-                                                                  Color(0xFF04140F)))
+                                                                  AppColors.onPrimary))
                                                       : const Text('Sign in'))),
                                           Center(
                                               child: TextButton(
@@ -194,12 +206,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(),
+      appBar: AppBar(
+          leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/welcome'))),
       body: AuroraBackground(
           child: SafeArea(
               child: ListView(
                   padding: const EdgeInsets.all(24),
                   children: [
+            Center(child: const EnqivraLogo(size: 64))
+                .animate()
+                .fadeIn(duration: 450.ms)
+                .scale(
+                    begin: const Offset(0.75, 0.75),
+                    curve: Curves.easeOutBack),
+            const SizedBox(height: 20),
             Text('Create your workspace',
                 style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 8),

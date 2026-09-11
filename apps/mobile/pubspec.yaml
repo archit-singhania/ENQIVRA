@@ -18,5 +18,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
 flutter:
   uses-material-design: true
+  assets:
+    - assets/branding/enquivra_logo.png
+
+# Generates the real app icon (Android mipmaps + adaptive icon) from the
+# ENQIVRA logo, replacing the default Flutter launcher icon everywhere.
+# Run locally after `flutter pub get`:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: "ic_launcher"
+  image_path: "assets/branding/enquivra_logo.png"
+  adaptive_icon_background: "#050505"
+  adaptive_icon_foreground: "assets/branding/enquivra_logo.png"
+  min_sdk_android: 21

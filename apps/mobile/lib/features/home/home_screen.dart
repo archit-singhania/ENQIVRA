@@ -123,16 +123,16 @@ class _ActionTile extends StatelessWidget {
                       : null),
               child: Row(children: [
                 Icon(icon,
-                    color: highlighted ? const Color(0xFF04140F) : AppColors.primary),
+                    color: highlighted ? AppColors.onPrimary : AppColors.primary),
                 const SizedBox(width: 14),
                 Expanded(
                     child: Text(label,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: highlighted
-                                ? const Color(0xFF04140F)
+                                ? AppColors.onPrimary
                                 : AppColors.textPrimary))),
                 Icon(Icons.arrow_forward_rounded,
-                    color: highlighted ? const Color(0xFF04140F) : AppColors.textMuted,
+                    color: highlighted ? AppColors.onPrimary : AppColors.textMuted,
                     size: 18)
               ]))));
 }

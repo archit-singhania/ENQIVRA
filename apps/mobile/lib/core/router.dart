@@ -4,9 +4,16 @@ import 'package:enqivra_mobile/features/assets/asset_screens.dart';
 import 'package:enqivra_mobile/features/cases/case_screens.dart';
 import 'package:enqivra_mobile/features/profile/profile_screen.dart';
 import 'package:enqivra_mobile/features/knowledge/knowledge_screens.dart';
+import 'package:enqivra_mobile/features/landing/landing_screen.dart';
+import 'package:enqivra_mobile/features/about/about_author_screen.dart';
 import 'package:go_router/go_router.dart';
 
-final router = GoRouter(initialLocation: '/login', routes: [
+final router = GoRouter(initialLocation: '/welcome', routes: [
+  GoRoute(
+      path: '/welcome', builder: (context, state) => const LandingScreen()),
+  GoRoute(
+      path: '/about-author',
+      builder: (context, state) => const AboutAuthorScreen()),
   GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
   GoRoute(
       path: '/register', builder: (context, state) => const RegisterScreen()),

@@ -7,19 +7,24 @@ import 'package:google_fonts/google_fonts.dart';
 /// business logic, network, or state.
 class AppColors {
   AppColors._();
-  static const background = Color(0xFF050B09);
-  static const backgroundElevated = Color(0xFF0B1714);
-  static const primary = Color(0xFF3FE0AD);
-  static const primaryBright = Color(0xFF8CFFDB);
-  static const violet = Color(0xFF8C7BFA);
+  // Near-black stage the logo's gloss-red reads best against.
+  static const background = Color(0xFF060607);
+  static const backgroundElevated = Color(0xFF121013);
+  // Matches the ENQIVRA mark's signature red.
+  static const primary = Color(0xFFE31C2B);
+  static const primaryBright = Color(0xFFFF5A55);
+  // Cool electric-blue counterpoint so red never has to carry every accent.
+  static const violet = Color(0xFF2E6BFF);
   static const amber = Color(0xFFF5B25C);
-  static const textPrimary = Color(0xFFF4F8F6);
-  static const textSecondary = Color(0xFFA6B7B1);
-  static const textMuted = Color(0xFF71847E);
+  static const textPrimary = Color(0xFFF8F7F8);
+  static const textSecondary = Color(0xFFB9B2B4);
+  static const textMuted = Color(0xFF7C767A);
   static const glassFill = Color(0x14FFFFFF);
   static const glassFillStrong = Color(0x1FFFFFFF);
   static const glassBorder = Color(0x26FFFFFF);
-  static const danger = Color(0xFFFF6B6B);
+  static const danger = Color(0xFFFF4D4D);
+  // Text/icon color for anything painted on top of the primary red.
+  static const onPrimary = Color(0xFFFFF7F6);
 }
 
 class AppGradients {
@@ -27,13 +32,19 @@ class AppGradients {
   static const backdrop = RadialGradient(
     center: Alignment(-0.7, -0.9),
     radius: 1.6,
-    colors: [Color(0xFF12332B), Color(0xFF050B09)],
+    colors: [Color(0xFF2B0A0D), Color(0xFF060607)],
     stops: [0.0, 0.7],
   );
   static const primaryButton = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF52E9B8), Color(0xFF2BB894)],
+    colors: [Color(0xFFFF3B3F), Color(0xFFB60F1E)],
+  );
+  // Secondary blue accent — used sparingly for contrast against the red.
+  static const accentButton = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF4C86FF), Color(0xFF1A46C9)],
   );
   static const glassSheen = LinearGradient(
     begin: Alignment.topLeft,
@@ -122,8 +133,8 @@ ThemeData buildTheme() {
       style: FilledButton.styleFrom(
         backgroundColor: AppColors.primary,
         disabledBackgroundColor: AppColors.primary.withOpacity(0.35),
-        foregroundColor: const Color(0xFF04140F),
-        disabledForegroundColor: const Color(0xFF04140F).withOpacity(0.6),
+        foregroundColor: AppColors.onPrimary,
+        disabledForegroundColor: AppColors.onPrimary.withOpacity(0.6),
         textStyle: textTheme.labelLarge,
         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),

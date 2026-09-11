@@ -5,6 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 /// ENQIVRA premium design tokens — colors, gradients, and the global
 /// ThemeData. Purely presentational: no widget in this file touches
 /// business logic, network, or state.
+///
+/// These are the original dark-mode constants, kept exactly as they were
+/// so every screen that already references `AppColors.xxx` / `const`
+/// widgets built from them keeps compiling unchanged. New, theme-aware
+/// work (light mode, the circular reveal switch, the richer backdrop)
+/// is layered on top via [AppPalette] below instead of touching these.
 class AppColors {
   AppColors._();
   // Near-black stage the logo's gloss-red reads best against.
@@ -53,21 +59,218 @@ class AppGradients {
   );
 }
 
-ThemeData buildTheme() {
+/// Theme-aware token set. This is what all *new* shared chrome (the
+/// aurora backdrop, glass panels, the scaffold + dock, the theme toggle)
+/// reads from, so it can flip between [dark] and [light] instantly.
+/// Registered on [ThemeData.extensions] and reached anywhere via
+/// `context.palette`.
+@immutable
+class AppPalette extends ThemeExtension<AppPalette> {
+  const AppPalette({
+    required this.background,
+    required this.backgroundElevated,
+    required this.primary,
+    required this.primaryBright,
+    required this.violet,
+    required this.amber,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textMuted,
+    required this.glassFill,
+    required this.glassFillStrong,
+    required this.glassBorder,
+    required this.danger,
+    required this.onPrimary,
+    required this.backdrop,
+    required this.primaryButton,
+    required this.accentButton,
+    required this.glassSheen,
+    required this.brightness,
+  });
+
+  final Color background;
+  final Color backgroundElevated;
+  final Color primary;
+  final Color primaryBright;
+  final Color violet;
+  final Color amber;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textMuted;
+  final Color glassFill;
+  final Color glassFillStrong;
+  final Color glassBorder;
+  final Color danger;
+  final Color onPrimary;
+  final Gradient backdrop;
+  final Gradient primaryButton;
+  final Gradient accentButton;
+  final Gradient glassSheen;
+  final Brightness brightness;
+
+  static const dark = AppPalette(
+    background: AppColors.background,
+    backgroundElevated: AppColors.backgroundElevated,
+    primary: AppColors.primary,
+    primaryBright: AppColors.primaryBright,
+    violet: AppColors.violet,
+    amber: AppColors.amber,
+    textPrimary: AppColors.textPrimary,
+    textSecondary: AppColors.textSecondary,
+    textMuted: AppColors.textMuted,
+    glassFill: AppColors.glassFill,
+    glassFillStrong: AppColors.glassFillStrong,
+    glassBorder: AppColors.glassBorder,
+    danger: AppColors.danger,
+    onPrimary: AppColors.onPrimary,
+    backdrop: AppGradients.backdrop,
+    primaryButton: AppGradients.primaryButton,
+    accentButton: AppGradients.accentButton,
+    glassSheen: AppGradients.glassSheen,
+    brightness: Brightness.dark,
+  );
+
+  // A bright, Apple-notes-style light mode: soft warm-white stage, the
+  // same brand red/blue accents, dark ink text, black-tinted glass so the
+  // frosted panels still read as "glass" rather than flat white cards.
+  static const light = AppPalette(
+    background: Color(0xFFF4F3F5),
+    backgroundElevated: Color(0xFFFFFFFF),
+    primary: Color(0xFFD41123),
+    primaryBright: Color(0xFFFF3B3F),
+    violet: Color(0xFF2E5BEA),
+    amber: Color(0xFFC2790E),
+    textPrimary: Color(0xFF17151A),
+    textSecondary: Color(0xFF57545C),
+    textMuted: Color(0xFF8B868F),
+    glassFill: Color(0x14000000),
+    glassFillStrong: Color(0x1F000000),
+    glassBorder: Color(0x1E000000),
+    danger: Color(0xFFC22A20),
+    onPrimary: Color(0xFFFFFFFF),
+    backdrop: RadialGradient(
+      center: Alignment(-0.6, -0.9),
+      radius: 1.6,
+      colors: [Color(0xFFFFE0E2), Color(0xFFF4F3F5)],
+      stops: [0.0, 0.75],
+    ),
+    primaryButton: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0xFFFF3B3F), Color(0xFFB60F1E)],
+    ),
+    accentButton: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0xFF4C86FF), Color(0xFF1A46C9)],
+    ),
+    glassSheen: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0x30FFFFFF), Color(0x08FFFFFF)],
+    ),
+    brightness: Brightness.light,
+  );
+
+  @override
+  AppPalette copyWith({
+    Color? background,
+    Color? backgroundElevated,
+    Color? primary,
+    Color? primaryBright,
+    Color? violet,
+    Color? amber,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? textMuted,
+    Color? glassFill,
+    Color? glassFillStrong,
+    Color? glassBorder,
+    Color? danger,
+    Color? onPrimary,
+    Gradient? backdrop,
+    Gradient? primaryButton,
+    Gradient? accentButton,
+    Gradient? glassSheen,
+    Brightness? brightness,
+  }) =>
+      AppPalette(
+        background: background ?? this.background,
+        backgroundElevated: backgroundElevated ?? this.backgroundElevated,
+        primary: primary ?? this.primary,
+        primaryBright: primaryBright ?? this.primaryBright,
+        violet: violet ?? this.violet,
+        amber: amber ?? this.amber,
+        textPrimary: textPrimary ?? this.textPrimary,
+        textSecondary: textSecondary ?? this.textSecondary,
+        textMuted: textMuted ?? this.textMuted,
+        glassFill: glassFill ?? this.glassFill,
+        glassFillStrong: glassFillStrong ?? this.glassFillStrong,
+        glassBorder: glassBorder ?? this.glassBorder,
+        danger: danger ?? this.danger,
+        onPrimary: onPrimary ?? this.onPrimary,
+        backdrop: backdrop ?? this.backdrop,
+        primaryButton: primaryButton ?? this.primaryButton,
+        accentButton: accentButton ?? this.accentButton,
+        glassSheen: glassSheen ?? this.glassSheen,
+        brightness: brightness ?? this.brightness,
+      );
+
+  @override
+  AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {
+    if (other is! AppPalette) return this;
+    return AppPalette(
+      background: Color.lerp(background, other.background, t)!,
+      backgroundElevated:
+          Color.lerp(backgroundElevated, other.backgroundElevated, t)!,
+      primary: Color.lerp(primary, other.primary, t)!,
+      primaryBright: Color.lerp(primaryBright, other.primaryBright, t)!,
+      violet: Color.lerp(violet, other.violet, t)!,
+      amber: Color.lerp(amber, other.amber, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      glassFill: Color.lerp(glassFill, other.glassFill, t)!,
+      glassFillStrong: Color.lerp(glassFillStrong, other.glassFillStrong, t)!,
+      glassBorder: Color.lerp(glassBorder, other.glassBorder, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
+      backdrop: Gradient.lerp(backdrop, other.backdrop, t)!,
+      primaryButton: Gradient.lerp(primaryButton, other.primaryButton, t)!,
+      accentButton: Gradient.lerp(accentButton, other.accentButton, t)!,
+      glassSheen: Gradient.lerp(glassSheen, other.glassSheen, t)!,
+      brightness: t < 0.5 ? brightness : other.brightness,
+    );
+  }
+}
+
+/// Ergonomic access: `context.palette.primary` etc.
+extension AppPaletteX on BuildContext {
+  AppPalette get palette =>
+      Theme.of(this).extension<AppPalette>() ?? AppPalette.dark;
+}
+
+/// Legacy entry point — unchanged behaviour (dark theme). Kept so any
+/// existing call site (`buildTheme()`) keeps compiling.
+ThemeData buildTheme() => _buildTheme(AppPalette.dark);
+
+/// The two real entry points used by [EnqivraApp] now.
+ThemeData buildDarkTheme() => _buildTheme(AppPalette.dark);
+ThemeData buildLightTheme() => _buildTheme(AppPalette.light);
+
+ThemeData _buildTheme(AppPalette p) {
   final base = ThemeData(
       colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.dark,
-          surface: AppColors.backgroundElevated,
-          error: AppColors.danger),
-      scaffoldBackgroundColor: AppColors.background,
+          seedColor: p.primary,
+          brightness: p.brightness,
+          surface: p.backgroundElevated,
+          error: p.danger),
+      scaffoldBackgroundColor: p.background,
       useMaterial3: true);
 
-  final display = GoogleFonts.sora(
-      color: AppColors.textPrimary,
-      fontWeight: FontWeight.w600,
-      height: 1.15);
-  final body = GoogleFonts.manrope(color: AppColors.textPrimary, height: 1.45);
+  final display =
+      GoogleFonts.sora(color: p.textPrimary, fontWeight: FontWeight.w600, height: 1.15);
+  final body = GoogleFonts.manrope(color: p.textPrimary, height: 1.45);
 
   final textTheme = TextTheme(
     displayLarge: display.copyWith(
@@ -82,16 +285,21 @@ ThemeData buildTheme() {
     titleSmall: body.copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w700,
-        color: AppColors.textSecondary,
+        color: p.textSecondary,
         letterSpacing: 0.6),
-    bodyLarge: body.copyWith(fontSize: 16, color: AppColors.textPrimary),
-    bodyMedium: body.copyWith(fontSize: 14, color: AppColors.textSecondary),
-    bodySmall: body.copyWith(fontSize: 12, color: AppColors.textMuted),
-    labelLarge: body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.3),
+    bodyLarge: body.copyWith(fontSize: 16, color: p.textPrimary),
+    bodyMedium: body.copyWith(fontSize: 14, color: p.textSecondary),
+    bodySmall: body.copyWith(fontSize: 12, color: p.textMuted),
+    labelLarge:
+        body.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.3),
     labelMedium: body.copyWith(fontSize: 12, fontWeight: FontWeight.w600),
   );
 
+  final overlayStyle =
+      p.brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
+
   return base.copyWith(
+    extensions: [p],
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     splashFactory: InkSparkle.splashFactory,
@@ -109,32 +317,32 @@ ThemeData buildTheme() {
       elevation: 0,
       centerTitle: false,
       titleTextStyle: textTheme.headlineSmall,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
-      iconTheme: const IconThemeData(color: AppColors.textPrimary),
+      systemOverlayStyle: overlayStyle,
+      iconTheme: IconThemeData(color: p.textPrimary),
     ),
     cardTheme: CardThemeData(
-      color: AppColors.glassFill,
+      color: p.glassFill,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 14),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(22),
-        side: const BorderSide(color: AppColors.glassBorder, width: 1),
+        side: BorderSide(color: p.glassBorder, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
     ),
     listTileTheme: ListTileThemeData(
-      iconColor: AppColors.primary,
-      textColor: AppColors.textPrimary,
+      iconColor: p.primary,
+      textColor: p.textPrimary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AppColors.primary,
-        disabledBackgroundColor: AppColors.primary.withOpacity(0.35),
-        foregroundColor: AppColors.onPrimary,
-        disabledForegroundColor: AppColors.onPrimary.withOpacity(0.6),
+        backgroundColor: p.primary,
+        disabledBackgroundColor: p.primary.withOpacity(0.35),
+        foregroundColor: p.onPrimary,
+        disabledForegroundColor: p.onPrimary.withOpacity(0.6),
         textStyle: textTheme.labelLarge,
         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -143,8 +351,8 @@ ThemeData buildTheme() {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(color: AppColors.glassBorder, width: 1.2),
+        foregroundColor: p.textPrimary,
+        side: BorderSide(color: p.glassBorder, width: 1.2),
         textStyle: textTheme.labelLarge,
         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -152,77 +360,74 @@ ThemeData buildTheme() {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primaryBright,
+        foregroundColor: p.primaryBright,
         textStyle: textTheme.labelLarge,
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        backgroundColor: AppColors.glassFill,
+        foregroundColor: p.textPrimary,
+        backgroundColor: p.glassFill,
         padding: const EdgeInsets.all(10),
       ),
     ),
-    iconTheme: const IconThemeData(color: AppColors.textPrimary),
+    iconTheme: IconThemeData(color: p.textPrimary),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.glassFill,
+      fillColor: p.glassFill,
       labelStyle: textTheme.bodyMedium,
       hintStyle: textTheme.bodySmall,
-      prefixIconColor: AppColors.textSecondary,
-      suffixIconColor: AppColors.textSecondary,
+      prefixIconColor: p.textSecondary,
+      suffixIconColor: p.textSecondary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.glassBorder),
+        borderSide: BorderSide(color: p.glassBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.glassBorder),
+        borderSide: BorderSide(color: p.glassBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+        borderSide: BorderSide(color: p.primary, width: 1.6),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.danger),
+        borderSide: BorderSide(color: p.danger),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.danger, width: 1.6),
+        borderSide: BorderSide(color: p.danger, width: 1.6),
       ),
     ),
     chipTheme: base.chipTheme.copyWith(
-      backgroundColor: AppColors.glassFill,
-      selectedColor: AppColors.primary.withOpacity(0.22),
-      side: const BorderSide(color: AppColors.glassBorder),
-      labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
-      secondaryLabelStyle:
-          textTheme.bodyMedium?.copyWith(color: AppColors.primaryBright),
+      backgroundColor: p.glassFill,
+      selectedColor: p.primary.withOpacity(0.22),
+      side: BorderSide(color: p.glassBorder),
+      labelStyle: textTheme.bodyMedium?.copyWith(color: p.textPrimary),
+      secondaryLabelStyle: textTheme.bodyMedium?.copyWith(color: p.primaryBright),
       shape: const StadiumBorder(),
     ),
-    dividerTheme:
-        const DividerThemeData(color: AppColors.glassBorder, space: 32),
+    dividerTheme: DividerThemeData(color: p.glassBorder, space: 32),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      indicatorColor: AppColors.primary.withOpacity(0.18),
+      indicatorColor: p.primary.withOpacity(0.18),
       labelTextStyle: WidgetStatePropertyAll(
           textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
     ),
-    progressIndicatorTheme:
-        const ProgressIndicatorThemeData(color: AppColors.primary),
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: p.primary),
     popupMenuTheme: PopupMenuThemeData(
-      color: AppColors.backgroundElevated,
+      color: p.backgroundElevated,
       surfaceTintColor: Colors.transparent,
       textStyle: textTheme.bodyLarge,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: AppColors.glassBorder)),
+          side: BorderSide(color: p.glassBorder)),
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppColors.backgroundElevated,
+      backgroundColor: p.backgroundElevated,
       contentTextStyle: textTheme.bodyLarge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       behavior: SnackBarBehavior.floating,

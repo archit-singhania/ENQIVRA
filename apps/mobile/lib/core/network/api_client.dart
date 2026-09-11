@@ -90,5 +90,28 @@ class ApiClient {
     return decoded as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> uploadKnowledge(Uint8List bytes, String filename,
+      String title, String domain, String? equipmentCode) async {
+    final request = http.MultipartRequest(
+        'POST', Uri.parse('$baseUrl/knowledge/documents'));
+    request.fields['title'] = title;
+    request.fields['domain'] = domain;
+    if (equipmentCode != null && equipmentCode.isNotEmpty) {
+      request.fields['equipment_code'] = equipmentCode;
+    }
+    request.files
+        .add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    final response = await http.Response.fromStream(await request.send());
+    final decoded = response.body.isEmpty ? null : jsonDecode(response.body);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+          decoded is Map
+              ? decoded['detail']?.toString() ?? 'Document ingestion failed'
+              : 'Document ingestion failed',
+          response.statusCode);
+    }
+    return decoded as Map<String, dynamic>;
+  }
+
   void close() => _client.close();
 }

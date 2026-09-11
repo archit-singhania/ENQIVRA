@@ -15,6 +15,7 @@ dependencies = [
   "numpy>=2.2,<3",
   "opencv-python-headless>=4.11,<5",
   "pillow>=11.3,<13",
+  "pypdf>=6.0,<7",
   "pydantic-settings>=2.10,<3",
   "python-multipart>=0.0.20,<1",
   "pytesseract>=0.3.13,<1",
@@ -40,3 +41,4 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]

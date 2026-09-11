@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:enqivra_mobile/core/session/app_session.dart';
 import 'package:enqivra_mobile/shared/widgets/enqivra_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:file_picker/file_picker.dart';
 
 class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
@@ -37,6 +40,12 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   Widget build(BuildContext context) => EnqivraScaffold(
       title: 'Knowledge library',
+      actions: [
+        IconButton(
+            tooltip: 'Add manual',
+            onPressed: () => context.push('/knowledge/upload'),
+            icon: const Icon(Icons.upload_file_outlined))
+      ],
       child: Column(children: [
         TextField(
             controller: search,
@@ -95,6 +104,96 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                                     .push('/knowledge/${item['code']}')));
                       });
                 }))
+      ]));
+}
+
+class KnowledgeUploadScreen extends StatefulWidget {
+  const KnowledgeUploadScreen({super.key});
+  @override
+  State<KnowledgeUploadScreen> createState() => _KnowledgeUploadScreenState();
+}
+
+class _KnowledgeUploadScreenState extends State<KnowledgeUploadScreen> {
+  final title = TextEditingController();
+  String domain = 'COMMON';
+  String? filename;
+  List<int>? bytes;
+  String? message;
+  bool busy = false;
+
+  Future<void> choose() async {
+    final result = await FilePicker.platform.pickFiles(
+        withData: true,
+        allowedExtensions: ['pdf', 'txt', 'md'],
+        type: FileType.custom);
+    if (result == null || result.files.single.bytes == null) return;
+    setState(() {
+      filename = result.files.single.name;
+      bytes = result.files.single.bytes!;
+      if (title.text.isEmpty) title.text = filename!;
+    });
+  }
+
+  Future<void> upload() async {
+    if (bytes == null || filename == null || title.text.trim().isEmpty) {
+      setState(() => message = 'Choose a document and enter its title');
+      return;
+    }
+    setState(() {
+      busy = true;
+      message = null;
+    });
+    try {
+      final result = await AppSession.instance.intelligence.uploadKnowledge(
+          Uint8List.fromList(bytes!),
+          filename!,
+          title.text.trim(),
+          domain,
+          null);
+      setState(() => message = 'Indexed ${result['chunks']} grounded chunks');
+    } catch (e) {
+      setState(() => message = e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    title.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+      appBar: AppBar(title: const Text('Add technical document')),
+      body: ListView(padding: const EdgeInsets.all(20), children: [
+        TextField(
+            controller: title,
+            decoration: const InputDecoration(
+                labelText: 'Document title', border: OutlineInputBorder())),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+            initialValue: domain,
+            decoration: const InputDecoration(
+                labelText: 'Domain', border: OutlineInputBorder()),
+            items: ['COMMON', 'HVAC', 'AUTOMOTIVE', 'APPLIANCES']
+                .map((value) =>
+                    DropdownMenuItem(value: value, child: Text(value)))
+                .toList(),
+            onChanged: (value) => domain = value ?? domain),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+            onPressed: choose,
+            icon: const Icon(Icons.attach_file),
+            label: Text(filename ?? 'Choose PDF, TXT, or Markdown')),
+        const SizedBox(height: 12),
+        FilledButton(
+            onPressed: busy ? null : upload,
+            child: Text(busy ? 'Indexing…' : 'Index document')),
+        if (message != null)
+          Padding(
+              padding: const EdgeInsets.only(top: 12), child: Text(message!))
       ]));
 }
 

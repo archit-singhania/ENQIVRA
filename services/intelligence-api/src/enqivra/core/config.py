@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     neo4j_uri: str = "bolt://localhost:7687"
     neo4j_user: str = "neo4j"
     neo4j_password: str = "enqivra_dev_only"
+    intelligence_data_path: str = "./data/intelligence.db"
 
 
 @lru_cache

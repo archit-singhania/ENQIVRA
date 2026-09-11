@@ -97,6 +97,9 @@ services:
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-enqivra_dev_only}
       TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+      INTELLIGENCE_DATA_PATH: /data/intelligence.db
+    volumes:
+      - intelligence_data:/data
     ports:
       - "${INTELLIGENCE_API_PORT:-8000}:8000"
     depends_on:
@@ -118,3 +121,4 @@ volumes:
   neo4j_logs:
   valkey_data:
   evidence_data:
+  intelligence_data:

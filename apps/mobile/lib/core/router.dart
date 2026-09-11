@@ -32,10 +32,13 @@ final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(
       path: '/cases/:id',
       builder: (context, state) =>
-          CaseDetailScreen(caseId: state.pathParameters['id']!)),
+          CaseDetailScreen(caseData: state.extra! as Map<String, dynamic>)),
   GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
   GoRoute(
       path: '/knowledge', builder: (context, state) => const KnowledgeScreen()),
+  GoRoute(
+      path: '/knowledge/upload',
+      builder: (context, state) => const KnowledgeUploadScreen()),
   GoRoute(
       path: '/knowledge/:code',
       builder: (context, state) =>

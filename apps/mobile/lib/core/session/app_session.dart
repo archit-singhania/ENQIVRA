@@ -6,6 +6,7 @@ class AppSession {
   AppSession._();
   static final instance = AppSession._();
   final api = ApiClient(Environment.coreApiUrl);
+  final intelligence = ApiClient(Environment.intelligenceApiUrl);
   final storage = const FlutterSecureStorage();
   String? organizationId;
   String? organizationRole;

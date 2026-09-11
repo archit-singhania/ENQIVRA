@@ -8,8 +8,8 @@
 | 1 | Auth, organizations, asset registry, cases, evidence | Complete |
 | 2 | Universal ontology and HVAC/automotive/appliance packs | Complete |
 | 3 | Vision, audio, video, telemetry evidence intelligence and label OCR | Complete |
-| 4 | Hybrid RAG, metadata, citations, evaluation | Not started |
-| 5 | Stateful diagnostic investigation workflow | Not started |
+| 4 | Local hybrid retrieval, metadata, citations, grounding | Complete |
+| 5 | Stateful diagnostic investigation workflow | Complete |
 | 6 | Bayesian hypothesis updates and next-best test | Not started |
 | 7 | Ranked resolutions and repair-vs-replace | Not started |
 | 8 | Digital twins and prediction | Not started |
@@ -48,3 +48,15 @@ Phases 1 and 2 have no remaining implementation gaps in their defined scope. Aut
 Implemented: Android camera/gallery label capture, local OCR integration, manufacturer/model candidate extraction, image brightness/focus quality checks, PCM WAV duration/sample-rate/channel/RMS features, video codec/dimension/frame-rate/duration extraction, and CSV telemetry min/max/mean/standard-deviation with simple outlier observations. The FastAPI endpoint returns versioned structured signals, observations, limitations, and explicit COMPLETED/PARTIAL/UNSUPPORTED states.
 
 All analysis is local and free/open-source. Docker installs Tesseract OCR; host-mode OCR requires a local Tesseract executable and otherwise returns a truthful PARTIAL response while retaining image-quality analysis. Phase 3 extracts evidence signals only. It does not infer a root cause or prescribe repair; RAG, investigation, probability, resolution, and prediction remain Phases 4–8.
+
+## Phase 4 audit
+
+Implemented: persistent document ingestion for PDF, TXT, and Markdown; document/domain/equipment metadata; deterministic chunking; SQLite FTS5/BM25 lexical retrieval; token-overlap reranking; built-in Common/HVAC/Automotive safety and intake knowledge; extractive grounded answers; and citations containing source, page, chunk, excerpt, and score. Empty retrieval returns an explicit ungrounded response instead of invented content.
+
+The local SQLite index is the zero-cost host-mode authority and persists in `data/intelligence.db`. Its service boundary can later add Qdrant semantic candidates without changing the API. The Flutter Knowledge Library includes technical-document upload and reports the indexed chunk count.
+
+## Phase 5 audit
+
+Implemented: persistent investigation creation and lookup by Core API case ID; deterministic complaint safety triage; RED workflow stop for gas, fire/smoke, live electrical, and vehicle-control hazards; ORANGE professional-inspection restrictions; a recorded question/observation timeline; retrieval refreshed after each observation; citation-bearing evidence summaries; resume semantics; and an explicit `READY_FOR_REASONING` handoff after evidence intake.
+
+The Flutter case detail page now starts/resumes the investigation, displays safety state, asks one observation at a time, records answers, and shows grounded citations. Phase 5 deliberately does not attach probabilities or prescribe solutions; those remain Phases 6 and 7.

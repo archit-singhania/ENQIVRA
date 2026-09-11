@@ -52,7 +52,8 @@ class _CaseHistoryScreenState extends State<CaseHistoryScreen> {
                         subtitle: Text(
                             '${item['status']} • Safety ${item['safetyLevel']}'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => context.push('/cases/${item['id']}'))),
+                        onTap: () => context.push('/cases/${item['id']}',
+                            extra: item as Map<String, dynamic>))),
             ]);
           },
         ),
@@ -86,14 +87,17 @@ class _NewCaseScreenState extends State<NewCaseScreen> {
       error = null;
     });
     try {
-      await AppSession.instance.api.post(
+      final created = await AppSession.instance.api.post(
           '/cases?organizationId=${AppSession.instance.organizationId}',
           body: {
             'assetId': assetId,
             'title': title.text.trim(),
             'complaint': complaint.text.trim()
           });
-      if (mounted) context.pop();
+      if (mounted) {
+        final caseData = created as Map<String, dynamic>;
+        context.go('/cases/${caseData['id']}', extra: caseData);
+      }
     } catch (e) {
       setState(() => error = e.toString());
     } finally {
@@ -150,18 +154,75 @@ class _NewCaseScreenState extends State<NewCaseScreen> {
 }
 
 class CaseDetailScreen extends StatefulWidget {
-  const CaseDetailScreen({required this.caseId, super.key});
-  final String caseId;
+  const CaseDetailScreen({required this.caseData, super.key});
+  final Map<String, dynamic> caseData;
   @override
   State<CaseDetailScreen> createState() => _CaseDetailScreenState();
 }
 
 class _CaseDetailScreenState extends State<CaseDetailScreen> {
+  String get caseId => widget.caseData['id'] as String;
   bool uploading = false;
   String? message;
+  final answer = TextEditingController();
+  Map<String, dynamic>? investigation;
+  bool investigationBusy = false;
   Future<List<dynamic>> load() async =>
-      await AppSession.instance.api.get('/cases/${widget.caseId}/evidence')
+      await AppSession.instance.api.get('/cases/$caseId/evidence')
           as List<dynamic>;
+
+  @override
+  void initState() {
+    super.initState();
+    loadInvestigation();
+  }
+
+  Future<void> loadInvestigation() async {
+    try {
+      final value = await AppSession.instance.intelligence
+          .get('/investigations/by-case/$caseId');
+      if (mounted && value != null) {
+        setState(() => investigation = value as Map<String, dynamic>);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> startInvestigation() async {
+    setState(() => investigationBusy = true);
+    try {
+      final value = await AppSession.instance.intelligence
+          .post('/investigations', body: {
+        'case_id': caseId,
+        'complaint': widget.caseData['complaint'] as String
+      });
+      if (mounted) {
+        setState(() => investigation = value as Map<String, dynamic>);
+      }
+    } catch (e) {
+      if (mounted) setState(() => message = e.toString());
+    } finally {
+      if (mounted) setState(() => investigationBusy = false);
+    }
+  }
+
+  Future<void> submitObservation() async {
+    if (answer.text.trim().isEmpty || investigation == null) return;
+    setState(() => investigationBusy = true);
+    try {
+      final value = await AppSession.instance.intelligence.post(
+          '/investigations/${investigation!['id']}/observations',
+          body: {'answer': answer.text.trim()});
+      answer.clear();
+      if (mounted) {
+        setState(() => investigation = value as Map<String, dynamic>);
+      }
+    } catch (e) {
+      if (mounted) setState(() => message = e.toString());
+    } finally {
+      if (mounted) setState(() => investigationBusy = false);
+    }
+  }
+
   Future<void> upload() async {
     final result = await FilePicker.platform.pickFiles(withData: true);
     if (result == null) return;
@@ -175,7 +236,7 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
       message = null;
     });
     try {
-      await AppSession.instance.api.upload('/cases/${widget.caseId}/evidence',
+      await AppSession.instance.api.upload('/cases/$caseId/evidence',
           file.bytes!, file.name, _type(file.extension));
       setState(() => message = 'Evidence uploaded');
     } catch (e) {
@@ -194,6 +255,12 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
   }
 
   @override
+  void dispose() {
+    answer.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: const Text('Case evidence')),
       floatingActionButton: FloatingActionButton.extended(
@@ -205,6 +272,19 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
           builder: (context, snapshot) {
             final items = snapshot.data ?? [];
             return ListView(padding: const EdgeInsets.all(20), children: [
+              Text(widget.caseData['title'] as String,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 4),
+              Text(widget.caseData['complaint'] as String),
+              const SizedBox(height: 20),
+              _InvestigationCard(
+                  state: investigation,
+                  busy: investigationBusy,
+                  answer: answer,
+                  onStart: startInvestigation,
+                  onAnswer: submitObservation),
+              const Divider(height: 36),
+              Text('Evidence', style: Theme.of(context).textTheme.titleLarge),
               if (message != null)
                 Card(
                     child: Padding(
@@ -223,4 +303,104 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                           '${item['evidenceType']} • ${item['sizeBytes']} bytes'))
             ]);
           }));
+}
+
+class _InvestigationCard extends StatelessWidget {
+  const _InvestigationCard(
+      {required this.state,
+      required this.busy,
+      required this.answer,
+      required this.onStart,
+      required this.onAnswer});
+  final Map<String, dynamic>? state;
+  final bool busy;
+  final TextEditingController answer;
+  final VoidCallback onStart;
+  final VoidCallback onAnswer;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state == null) {
+      return Card(
+          child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Guided investigation',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const Text(
+                        'Start safety triage, grounded retrieval, and dynamic evidence questions.'),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                        onPressed: busy ? null : onStart,
+                        child: Text(busy ? 'Starting…' : 'Start investigation'))
+                  ])));
+    }
+    final level = state!['safety_level'] as String;
+    final status = state!['status'] as String;
+    final observations = state!['observations'] as List<dynamic>;
+    final citations = state!['citations'] as List<dynamic>;
+    return Card(
+        child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(children: [
+                    Icon(level == 'RED'
+                        ? Icons.dangerous
+                        : Icons.health_and_safety_outlined),
+                    const SizedBox(width: 8),
+                    Text('Safety $level • ${status.replaceAll('_', ' ')}')
+                  ]),
+                  if (state!['safety_message'] != null) ...[
+                    const SizedBox(height: 8),
+                    Text(state!['safety_message'] as String,
+                        style: TextStyle(
+                            color: level == 'RED'
+                                ? Colors.red
+                                : Colors.orange.shade800))
+                  ],
+                  for (final item in observations) ...[
+                    const Divider(),
+                    Text(item['question'] as String,
+                        style: Theme.of(context).textTheme.labelLarge),
+                    Text(item['answer'] as String)
+                  ],
+                  if (state!['current_question'] != null) ...[
+                    const Divider(),
+                    Text(state!['current_question'] as String,
+                        style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    TextField(
+                        controller: answer,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                            labelText: 'Your observation',
+                            border: OutlineInputBorder())),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                        onPressed: busy ? null : onAnswer,
+                        child: Text(busy ? 'Saving…' : 'Submit observation'))
+                  ],
+                  if ((state!['evidence_summary'] as String).isNotEmpty) ...[
+                    const Divider(),
+                    Text('Grounded evidence',
+                        style: Theme.of(context).textTheme.titleMedium),
+                    Text(state!['evidence_summary'] as String)
+                  ],
+                  if (citations.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                        '${citations.length} local citation${citations.length == 1 ? '' : 's'}',
+                        style: Theme.of(context).textTheme.labelLarge),
+                    for (final citation in citations)
+                      Text(
+                          '• ${citation['title']} • chunk ${citation['chunk']}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis)
+                  ]
+                ])));
+  }
 }

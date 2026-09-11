@@ -1,5 +1,5 @@
 # Diagnostic investigation engine
 
-The planned engine identifies an asset, interprets a complaint, performs safety triage, ranks hypotheses, selects the next informative test, updates probabilities from evidence, verifies safety, and proposes ranked resolutions. This workflow is not implemented in Phase 0.
+The engine identifies an asset, interprets a complaint, performs safety triage, gathers observations, and retrieves cited knowledge. Phase 5 persists this workflow and stops unsafe investigations. Phase 6 will rank hypotheses and select the statistically next-best test; Phase 7 will propose ranked resolutions.
 
-Deterministic rules will own safety and probability calculations; ML will analyze evidence; graph and retrieval systems will supply knowledge; an orchestrator will manage investigation state.
+Deterministic rules own safety; Phase 3 analyzers extract evidence; Phase 4 retrieval supplies grounded knowledge; and the Phase 5 orchestrator manages investigation state. Probability calculations remain explicitly deferred to Phase 6.

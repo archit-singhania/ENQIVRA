@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr l
     && rm -rf /var/lib/apt/lists/*
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN groupadd --system enqivra && useradd --system --gid enqivra --create-home enqivra
+RUN mkdir -p /data && chown enqivra:enqivra /data
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src

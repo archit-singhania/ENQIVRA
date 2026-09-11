@@ -71,5 +71,24 @@ class ApiClient {
     return decoded;
   }
 
+  Future<Map<String, dynamic>> analyzeEvidence(String intelligenceBaseUrl,
+      Uint8List bytes, String filename, String evidenceType) async {
+    final request = http.MultipartRequest(
+        'POST', Uri.parse('$intelligenceBaseUrl/evidence/analyze'));
+    request.fields['evidence_type'] = evidenceType;
+    request.files
+        .add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    final response = await http.Response.fromStream(await request.send());
+    final decoded = response.body.isEmpty ? null : jsonDecode(response.body);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+          decoded is Map
+              ? decoded['detail']?.toString() ?? 'Analysis failed'
+              : 'Analysis failed',
+          response.statusCode);
+    }
+    return decoded as Map<String, dynamic>;
+  }
+
   void close() => _client.close();
 }

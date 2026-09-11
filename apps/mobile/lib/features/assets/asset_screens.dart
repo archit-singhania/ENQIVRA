@@ -1,7 +1,9 @@
 import 'package:enqivra_mobile/shared/widgets/enqivra_scaffold.dart';
 import 'package:enqivra_mobile/core/session/app_session.dart';
+import 'package:enqivra_mobile/core/config/environment.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AssetsScreen extends StatefulWidget {
   const AssetsScreen({super.key});
@@ -162,24 +164,92 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
       ]));
 }
 
-class ScanAssetScreen extends StatelessWidget {
+class ScanAssetScreen extends StatefulWidget {
   const ScanAssetScreen({super.key});
+  @override
+  State<ScanAssetScreen> createState() => _ScanAssetScreenState();
+}
+
+class _ScanAssetScreenState extends State<ScanAssetScreen> {
+  final picker = ImagePicker();
+  Map<String, dynamic>? result;
+  String? error;
+  bool busy = false;
+
+  Future<void> scan(ImageSource source) async {
+    final image = await picker.pickImage(source: source, imageQuality: 92);
+    if (image == null) return;
+    setState(() {
+      busy = true;
+      error = null;
+      result = null;
+    });
+    try {
+      final value = await AppSession.instance.api.analyzeEvidence(
+          Environment.intelligenceApiUrl,
+          await image.readAsBytes(),
+          image.name,
+          'IMAGE');
+      if (mounted) setState(() => result = value);
+    } catch (e) {
+      if (mounted) setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: const Text('Scan equipment')),
-      body: Center(
-          child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.center_focus_strong, size: 96),
-                const SizedBox(height: 20),
-                Text('Camera/OCR arrives in Phase 3',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 8),
-                const Text(
-                    'For now, add manufacturer and model details manually.',
-                    textAlign: TextAlign.center)
-              ]))));
+      body: ListView(padding: const EdgeInsets.all(24), children: [
+        const Icon(Icons.center_focus_strong, size: 88),
+        Text('Equipment label recognition',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        const Text('Fill the frame with the manufacturer and model label.',
+            textAlign: TextAlign.center),
+        const SizedBox(height: 20),
+        FilledButton.icon(
+            onPressed: busy ? null : () => scan(ImageSource.camera),
+            icon: const Icon(Icons.camera_alt_outlined),
+            label: Text(busy ? 'Analyzing…' : 'Take label photo')),
+        OutlinedButton.icon(
+            onPressed: busy ? null : () => scan(ImageSource.gallery),
+            icon: const Icon(Icons.photo_library_outlined),
+            label: const Text('Choose existing photo')),
+        if (error != null)
+          Card(
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Padding(
+                  padding: const EdgeInsets.all(16), child: Text(error!))),
+        if (result != null) ...[
+          const SizedBox(height: 20),
+          Text('Local analysis', style: Theme.of(context).textTheme.titleLarge),
+          ListTile(
+              title: const Text('Status'),
+              subtitle: Text(result!['status'] as String)),
+          if (result!['extracted_text'] != null)
+            Card(
+                child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child:
+                        SelectableText(result!['extracted_text'] as String))),
+          for (final candidate
+              in result!['equipment_candidates'] as List<dynamic>)
+            ListTile(
+                leading: const Icon(Icons.verified_outlined),
+                title: Text(candidate as String)),
+          for (final observation in result!['observations'] as List<dynamic>)
+            ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(observation as String)),
+          for (final limitation in result!['limitations'] as List<dynamic>)
+            ListTile(
+                leading: const Icon(Icons.warning_amber),
+                title: Text(limitation as String))
+        ]
+      ]));
 }
 
 class AssetDetailScreen extends StatefulWidget {

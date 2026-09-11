@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from enqivra.api.evidence import router as evidence_router
 from enqivra.api.health import router as health_router
 from enqivra.core.config import get_settings
 from enqivra.core.logging import configure_logging
@@ -24,4 +26,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(evidence_router, prefix="/api/v1")

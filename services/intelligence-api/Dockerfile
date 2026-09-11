@@ -1,4 +1,7 @@
 FROM python:3.13-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr libgl1 \
+    && rm -rf /var/lib/apt/lists/*
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN groupadd --system enqivra && useradd --system --gid enqivra --create-home enqivra
 WORKDIR /app

@@ -1,11 +1,10 @@
 # Intelligence API
 
-FastAPI integration boundary for future evidence analysis, retrieval, graph reasoning, and diagnostics. Phase 0 exposes lifecycle-managed dependency clients and health reporting only.
+FastAPI service for lifecycle-managed dependency health and Phase 3 local evidence analysis. `POST /api/v1/evidence/analyze` accepts images, PCM WAV audio, videos, and telemetry CSV files. Docker includes Tesseract OCR; direct Windows execution needs `tesseract.exe` on `PATH` for OCR and otherwise reports a truthful partial result.
 
-```bash
-python -m venv .venv
-pip install -e ".[dev]"
-uvicorn enqivra.main:app --reload
-pytest
-ruff check src tests
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m uvicorn enqivra.main:app --reload --port 8000
 ```
+
+Open `http://localhost:8000/docs` for interactive API documentation.

@@ -7,7 +7,7 @@
 | 0 | Monorepo, service/client shells, local data stack, CI, docs | Implemented foundation; full container runtime verification pending local Docker |
 | 1 | Auth, organizations, asset registry, cases, evidence | Complete |
 | 2 | Universal ontology and HVAC/automotive/appliance packs | Complete |
-| 3 | Vision, audio, telemetry evidence intelligence | Not started |
+| 3 | Vision, audio, video, telemetry evidence intelligence and label OCR | Complete |
 | 4 | Hybrid RAG, metadata, citations, evaluation | Not started |
 | 5 | Stateful diagnostic investigation workflow | Not started |
 | 6 | Bayesian hypothesis updates and next-best test | Not started |
@@ -41,4 +41,10 @@ The first versioned seed contains Common, HVAC, Automotive, and Appliance knowle
 
 The Core API exposes pack summaries, filtered full-text-like catalogue search, and connected-node detail. Flutter adds a searchable, domain-filtered Knowledge Library with safety indicators and relationship navigation, plus asset detail and component-registry screens. This phase deliberately does not rank causes, analyze evidence, or generate repair instructions; those capabilities begin in Phases 3–7.
 
-Phases 1 and 2 have no remaining implementation gaps in their defined scope. Camera/OCR, evidence intelligence, automated diagnosis, probability updates, and generated repair guidance are later-phase work rather than incomplete Phase 1/2 features.
+Phases 1 and 2 have no remaining implementation gaps in their defined scope. Automated diagnosis, probability updates, and generated repair guidance are later-phase work rather than incomplete Phase 1/2 features.
+
+## Phase 3 audit
+
+Implemented: Android camera/gallery label capture, local OCR integration, manufacturer/model candidate extraction, image brightness/focus quality checks, PCM WAV duration/sample-rate/channel/RMS features, video codec/dimension/frame-rate/duration extraction, and CSV telemetry min/max/mean/standard-deviation with simple outlier observations. The FastAPI endpoint returns versioned structured signals, observations, limitations, and explicit COMPLETED/PARTIAL/UNSUPPORTED states.
+
+All analysis is local and free/open-source. Docker installs Tesseract OCR; host-mode OCR requires a local Tesseract executable and otherwise returns a truthful PARTIAL response while retaining image-quality analysis. Phase 3 extracts evidence signals only. It does not infer a root cause or prescribe repair; RAG, investigation, probability, resolution, and prediction remain Phases 4–8.

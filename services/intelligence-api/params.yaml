@@ -1,0 +1,5 @@
+reasoning:
+  positive_likelihood_ratio: 2.4
+  negative_likelihood_ratio: 2.8
+quality_gate:
+  minimum_top_1_accuracy: 0.60

@@ -8,7 +8,7 @@ ENQIVRA is a local-first Universal Physical Intelligence Platform. This reposito
 
 ## Current scope
 
-Phases 0–7 are complete: the Flutter client includes authenticated asset/case workflows, universal ontology, local multimodal evidence extraction, grounded retrieval with citations, persistent safety-triaged investigations, evidence-updated cause probabilities, next-best safe tests, and ranked repair/replace guidance. Digital twins and predictive maintenance remain Phase 8. See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed audit.
+Phases 0–9 are complete: the Flutter client includes authenticated asset/case workflows, universal ontology, local multimodal evidence extraction, grounded retrieval, investigations, probability updates, repair guidance, asset digital twins, and predictive-maintenance trends. The intelligence service adds a reproducible DVC/MLflow-compatible model evaluation and promotion lifecycle. Production hardening remains Phase 10. See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed audit.
 
 ## Free and open-source stack
 

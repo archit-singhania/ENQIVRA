@@ -12,8 +12,8 @@
 | 5 | Stateful diagnostic investigation workflow | Complete |
 | 6 | Bayesian hypothesis updates and next-best test | Complete |
 | 7 | Ranked resolutions and repair-vs-replace | Complete |
-| 8 | Digital twins and prediction | Not started |
-| 9 | MLflow/DVC evaluation and model lifecycle | Not started |
+| 8 | Digital twins and prediction | Complete |
+| 9 | MLflow/DVC evaluation and model lifecycle | Complete |
 | 10 | Observability, load/security testing, deployment | Not started |
 
 ## What a user can see now
@@ -72,3 +72,15 @@ RED safety investigations cannot enter reasoning. The rule engine is fully local
 Implemented: ranked repair strategies linked to hypothesis codes, safety classification, LOW/MEDIUM/HIGH/UNKNOWN cost bands, user-safe versus professional-work boundaries, verification-first rationale, and repair-versus-replace guidance. Strategies are withheld until evidence intake is complete and the user explicitly calculates the result. Exact currency estimates are deliberately not invented: the output explains that asset age, condition, local quotes, parts availability, recurrence, and replacement price are required for an economic decision.
 
 The Flutter case page displays changing cause probabilities and the next-best test during investigation. At `READY_FOR_REASONING`, it exposes a calculation action; the completed `ANALYZED` view adds ranked strategies, professional requirements, repair-versus-replace factors, and limitations.
+
+## Phase 8 audit
+
+Implemented: persistent per-asset digital-twin readings; metric, unit, source, timestamp, warning and critical thresholds; health-index/state calculation; grouped condition timelines; least-squares trend estimation; threshold-crossing forecasts; confidence derived from sample volume and fit error; and NORMAL/WATCH/WARNING/CRITICAL/INSUFFICIENT_DATA states. Fewer than three readings explicitly produces `UNKNOWN` health and no forecast.
+
+The Flutter equipment-detail page displays the twin and permits condition readings without requiring paid telemetry infrastructure. This baseline accepts manual or API-fed readings and is ready for later device adapters; it does not claim remaining-useful-life precision from sparse data.
+
+## Phase 9 audit
+
+Implemented: a versioned diagnostic evaluation dataset, parameter file, reproducible DVC pipeline, standalone evaluation runner, local MLflow logging when the optional FOC MLOps dependencies are installed, persistent SQLite evaluation/model registry, top-1 accuracy and mean-confidence metrics, comparison with the preceding run, regression detection, CANDIDATE/STAGING/PRODUCTION/ARCHIVED stages, a minimum production quality gate, and automatic archival of an older production version.
+
+The built-in v1 dataset currently contains four representative regression cases and scores 100%; this is a software regression baseline, not proof of real-world clinical-grade accuracy. Production promotion requires at least 60% on the selected dataset, while larger curated and field-labelled datasets remain ongoing operational work.

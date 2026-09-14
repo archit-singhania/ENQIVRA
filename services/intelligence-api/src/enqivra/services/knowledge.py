@@ -49,6 +49,24 @@ class KnowledgeStore:
                     observations_json TEXT NOT NULL, evidence_summary TEXT NOT NULL,
                     citations_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS twin_snapshots (
+                    id TEXT PRIMARY KEY, asset_id TEXT NOT NULL, metric TEXT NOT NULL,
+                    value REAL NOT NULL, unit TEXT NOT NULL, warning_threshold REAL,
+                    critical_threshold REAL, recorded_at TEXT NOT NULL, source TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_twin_asset_metric_time
+                    ON twin_snapshots(asset_id, metric, recorded_at);
+                CREATE TABLE IF NOT EXISTS model_versions (
+                    id TEXT PRIMARY KEY, model_name TEXT NOT NULL, version TEXT NOT NULL,
+                    stage TEXT NOT NULL, algorithm TEXT NOT NULL, parameters_json TEXT NOT NULL,
+                    metrics_json TEXT NOT NULL, dataset_version TEXT NOT NULL,
+                    created_at TEXT NOT NULL, UNIQUE(model_name, version)
+                );
+                CREATE TABLE IF NOT EXISTS evaluation_runs (
+                    id TEXT PRIMARY KEY, model_name TEXT NOT NULL, model_version TEXT NOT NULL,
+                    dataset_version TEXT NOT NULL, metrics_json TEXT NOT NULL,
+                    drift_json TEXT NOT NULL, passed INTEGER NOT NULL, created_at TEXT NOT NULL
+                );
                 """
             )
             columns = {

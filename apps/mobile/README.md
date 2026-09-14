@@ -1,6 +1,6 @@
 # Mobile
 
-The Flutter client provides registration/login, secure refresh-token restoration, workspace switching, invitation acceptance, membership administration, workspace metrics, ontology-classified equipment and nested components, case creation/history, evidence selection/upload, the Knowledge Library, camera/gallery equipment-label analysis, local manual ingestion, persistent safety-triaged investigations, changing cause probabilities, next-best tests, and ranked repair/replace guidance.
+The Flutter client provides registration/login, secure session and workspace workflows, ontology-classified equipment/components, cases and evidence, local knowledge ingestion, multimodal analysis, safety-triaged investigations, changing cause probabilities, next-best tests, ranked repair/replace guidance, and per-equipment digital twins with condition trends and predictive threshold warnings.
 
 For local web development, start both the Core API on port 8080 and Intelligence API on port 8000, then run:
 

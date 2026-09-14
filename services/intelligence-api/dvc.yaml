@@ -1,0 +1,12 @@
+stages:
+  evaluate:
+    cmd: python scripts/evaluate.py
+    deps:
+      - data/evaluation/reasoning_cases.json
+      - scripts/evaluate.py
+      - src/enqivra/services/reasoning.py
+    params:
+      - reasoning
+      - quality_gate
+    metrics:
+      - reports/evaluation.json

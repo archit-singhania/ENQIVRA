@@ -262,6 +262,66 @@ class AssetDetailScreen extends StatefulWidget {
 class _AssetDetailScreenState extends State<AssetDetailScreen> {
   Future<List<dynamic>> load() async => await AppSession.instance.api
       .get('/assets/${widget.asset['id']}/components') as List<dynamic>;
+  Future<Map<String, dynamic>> loadTwin() async =>
+      await AppSession.instance.intelligence.get('/twins/${widget.asset['id']}')
+          as Map<String, dynamic>;
+
+  Future<void> recordReading() async {
+    final metric = TextEditingController();
+    final value = TextEditingController();
+    final unit = TextEditingController();
+    final warning = TextEditingController();
+    final critical = TextEditingController();
+    final submit = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: const Text('Record condition reading'),
+                content: SingleChildScrollView(
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  TextField(
+                      controller: metric,
+                      decoration: const InputDecoration(
+                          labelText: 'Metric, e.g. temperature')),
+                  TextField(
+                      controller: value,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Value')),
+                  TextField(
+                      controller: unit,
+                      decoration: const InputDecoration(labelText: 'Unit')),
+                  TextField(
+                      controller: warning,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                          labelText: 'Warning threshold (optional)')),
+                  TextField(
+                      controller: critical,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                          labelText: 'Critical threshold (optional)'))
+                ])),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Record'))
+                ]));
+    if (submit != true ||
+        metric.text.trim().isEmpty ||
+        double.tryParse(value.text) == null ||
+        unit.text.trim().isEmpty) return;
+    await AppSession.instance.intelligence
+        .post('/twins/${widget.asset['id']}/snapshots', body: {
+      'metric': metric.text.trim(),
+      'value': double.parse(value.text),
+      'unit': unit.text.trim(),
+      'warning_threshold': double.tryParse(warning.text),
+      'critical_threshold': double.tryParse(critical.text)
+    });
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -289,6 +349,45 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
               Text(widget.asset['category'] as String,
                   style: Theme.of(context).textTheme.titleLarge),
               Text(widget.asset['model']?.toString() ?? 'Model not set'),
+              const SizedBox(height: 20),
+              FutureBuilder<Map<String, dynamic>>(
+                  future: loadTwin(),
+                  builder: (context, twinSnapshot) {
+                    final twin = twinSnapshot.data;
+                    return Card(
+                        child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('Digital twin',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge),
+                                  if (twinSnapshot.hasError)
+                                    Text(twinSnapshot.error.toString())
+                                  else if (twin == null)
+                                    const LinearProgressIndicator()
+                                  else ...[
+                                    Text(
+                                        '${twin['health_state']} • health ${twin['health_index']}/100'),
+                                    for (final prediction
+                                        in twin['predictions'] as List<dynamic>)
+                                      ListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          title: Text(
+                                              '${prediction['metric']} • ${prediction['state']}'),
+                                          subtitle: Text(
+                                              '${prediction['message']} Confidence ${((prediction['confidence'] as num) * 100).round()}%'))
+                                  ],
+                                  OutlinedButton.icon(
+                                      onPressed: recordReading,
+                                      icon: const Icon(
+                                          Icons.monitor_heart_outlined),
+                                      label: const Text(
+                                          'Record condition reading'))
+                                ])));
+                  }),
               const SizedBox(height: 24),
               Text('Components', style: Theme.of(context).textTheme.titleLarge),
               if (components.isEmpty)

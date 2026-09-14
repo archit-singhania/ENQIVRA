@@ -27,6 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.4,<9", "pytest-asyncio>=1.1,<2", "ruff>=0.12,<1"]
+mlops = ["dvc>=3.60,<4", "mlflow-skinny>=3.3,<4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/enqivra"]

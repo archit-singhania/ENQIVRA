@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from enqivra.schemas.knowledge import Citation
+from enqivra.schemas.reasoning import ReasoningResult
 
 
 class StartInvestigation(BaseModel):
@@ -21,12 +22,13 @@ class InvestigationView(BaseModel):
     id: str
     case_id: str
     complaint: str
-    status: Literal["AWAITING_OBSERVATION", "STOPPED_SAFETY", "READY_FOR_REASONING"]
+    status: Literal["AWAITING_OBSERVATION", "STOPPED_SAFETY", "READY_FOR_REASONING", "ANALYZED"]
     safety_level: Literal["GREEN", "YELLOW", "ORANGE", "RED"]
     safety_message: str | None
     current_question: str | None
     observations: list[dict[str, str]]
     evidence_summary: str
     citations: list[Citation]
+    reasoning: ReasoningResult | None = None
     created_at: datetime
     updated_at: datetime

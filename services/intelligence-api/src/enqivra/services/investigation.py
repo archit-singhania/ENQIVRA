@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 
 from enqivra.schemas.investigation import InvestigationView, StartInvestigation
 from enqivra.services.knowledge import KnowledgeStore
+from enqivra.services.reasoning import reason
 
 QUESTIONS = [
     ("power", "Does the equipment power on, and are any indicators or error codes visible?"),
@@ -39,7 +40,12 @@ class InvestigationService:
         if existing:
             return _view(existing)
         level, message = _safety(request.complaint)
-        question = None if level == "RED" else _next_question([])
+        preliminary = reason(request.complaint, [], request.domain, level)
+        question = (
+            None
+            if level == "RED" or preliminary.next_best_test is None
+            else preliminary.next_best_test.question
+        )
         status = "STOPPED_SAFETY" if level == "RED" else "AWAITING_OBSERVATION"
         knowledge = self.store.answer(
             request.complaint, request.domain, request.equipment_code, limit=4
@@ -48,7 +54,7 @@ class InvestigationService:
         identifier = str(uuid.uuid4())
         with self.store.lock, self.store.connection:
             self.store.connection.execute(
-                "INSERT INTO investigations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO investigations (id, case_id, complaint, domain, equipment_code, status, safety_level, safety_message, current_question, observations_json, evidence_summary, citations_json, created_at, updated_at, reasoning_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     identifier,
                     request.case_id,
@@ -64,6 +70,30 @@ class InvestigationService:
                     json.dumps([item.model_dump(mode="json") for item in knowledge.citations]),
                     now,
                     now,
+                    (None if level == "RED" else json.dumps(preliminary.model_dump(mode="json"))),
+                ),
+            )
+        return self.get(identifier)
+
+    def analyze(self, identifier: str) -> InvestigationView:
+        row = self._row(identifier)
+        if row["status"] == "STOPPED_SAFETY":
+            raise ValueError("Safety-stopped investigations cannot be analyzed for DIY repair")
+        if row["status"] not in {"READY_FOR_REASONING", "ANALYZED"}:
+            raise ValueError("Complete the evidence questions before diagnostic reasoning")
+        result = reason(
+            row["complaint"],
+            json.loads(row["observations_json"]),
+            row["domain"],
+            row["safety_level"],
+        )
+        with self.store.lock, self.store.connection:
+            self.store.connection.execute(
+                "UPDATE investigations SET status='ANALYZED', reasoning_json=?, updated_at=? WHERE id=?",
+                (
+                    json.dumps(result.model_dump(mode="json")),
+                    datetime.now(UTC).isoformat(),
+                    identifier,
                 ),
             )
         return self.get(identifier)
@@ -77,14 +107,19 @@ class InvestigationService:
         combined = row["complaint"] + " " + " ".join(item["answer"] for item in observations)
         level, message = _safety(combined)
         if level == "RED":
-            status, question = "STOPPED_SAFETY", None
+            status, question, reasoning_result = "STOPPED_SAFETY", None, None
         else:
-            question = _next_question(observations)
+            reasoning_result = reason(row["complaint"], observations, row["domain"], level)
+            question = (
+                reasoning_result.next_best_test.question
+                if len(observations) < 4 and reasoning_result.next_best_test
+                else None
+            )
             status = "AWAITING_OBSERVATION" if question else "READY_FOR_REASONING"
         knowledge = self.store.answer(combined, row["domain"], row["equipment_code"], limit=4)
         with self.store.lock, self.store.connection:
             self.store.connection.execute(
-                "UPDATE investigations SET status=?, safety_level=?, safety_message=?, current_question=?, observations_json=?, evidence_summary=?, citations_json=?, updated_at=? WHERE id=?",
+                "UPDATE investigations SET status=?, safety_level=?, safety_message=?, current_question=?, observations_json=?, evidence_summary=?, citations_json=?, reasoning_json=?, updated_at=? WHERE id=?",
                 (
                     status,
                     level,
@@ -93,6 +128,11 @@ class InvestigationService:
                     json.dumps(observations),
                     knowledge.answer,
                     json.dumps([item.model_dump(mode="json") for item in knowledge.citations]),
+                    (
+                        json.dumps(reasoning_result.model_dump(mode="json"))
+                        if reasoning_result
+                        else None
+                    ),
                     datetime.now(UTC).isoformat(),
                     identifier,
                 ),
@@ -146,6 +186,11 @@ def _view(row) -> InvestigationView:
         observations=json.loads(row["observations_json"]),
         evidence_summary=row["evidence_summary"],
         citations=json.loads(row["citations_json"]),
+        reasoning=(
+            json.loads(row["reasoning_json"])
+            if "reasoning_json" in row.keys() and row["reasoning_json"]
+            else None
+        ),
         created_at=datetime.fromisoformat(row["created_at"]),
         updated_at=datetime.fromisoformat(row["updated_at"]),
     )

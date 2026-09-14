@@ -37,3 +37,13 @@ async def observe(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/{identifier}/reason", response_model=InvestigationView)
+async def analyze(request: Request, identifier: str) -> InvestigationView:
+    try:
+        return request.app.state.investigations.analyze(identifier)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc

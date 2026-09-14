@@ -10,8 +10,8 @@
 | 3 | Vision, audio, video, telemetry evidence intelligence and label OCR | Complete |
 | 4 | Local hybrid retrieval, metadata, citations, grounding | Complete |
 | 5 | Stateful diagnostic investigation workflow | Complete |
-| 6 | Bayesian hypothesis updates and next-best test | Not started |
-| 7 | Ranked resolutions and repair-vs-replace | Not started |
+| 6 | Bayesian hypothesis updates and next-best test | Complete |
+| 7 | Ranked resolutions and repair-vs-replace | Complete |
 | 8 | Digital twins and prediction | Not started |
 | 9 | MLflow/DVC evaluation and model lifecycle | Not started |
 | 10 | Observability, load/security testing, deployment | Not started |
@@ -60,3 +60,15 @@ The local SQLite index is the zero-cost host-mode authority and persists in `dat
 Implemented: persistent investigation creation and lookup by Core API case ID; deterministic complaint safety triage; RED workflow stop for gas, fire/smoke, live electrical, and vehicle-control hazards; ORANGE professional-inspection restrictions; a recorded question/observation timeline; retrieval refreshed after each observation; citation-bearing evidence summaries; resume semantics; and an explicit `READY_FOR_REASONING` handoff after evidence intake.
 
 The Flutter case detail page now starts/resumes the investigation, displays safety state, asks one observation at a time, records answers, and shows grounded citations. Phase 5 deliberately does not attach probabilities or prescribe solutions; those remain Phases 6 and 7.
+
+## Phase 6 audit
+
+Implemented: a persistent, deterministic Bayesian-style hypothesis engine with domain inference for HVAC, automotive, and appliance complaints; explicit priors and evidence likelihood updates; normalized probabilities; supporting and contradicting evidence; recalculation after every observation; and next-best safe-test selection using a bounded information-gain score. Results clearly state that probabilities are estimates rather than proof.
+
+RED safety investigations cannot enter reasoning. The rule engine is fully local, inspectable, and free/open-source; it does not call a hosted LLM or conceal its evidence model.
+
+## Phase 7 audit
+
+Implemented: ranked repair strategies linked to hypothesis codes, safety classification, LOW/MEDIUM/HIGH/UNKNOWN cost bands, user-safe versus professional-work boundaries, verification-first rationale, and repair-versus-replace guidance. Strategies are withheld until evidence intake is complete and the user explicitly calculates the result. Exact currency estimates are deliberately not invented: the output explains that asset age, condition, local quotes, parts availability, recurrence, and replacement price are required for an economic decision.
+
+The Flutter case page displays changing cause probabilities and the next-best test during investigation. At `READY_FOR_REASONING`, it exposes a calculation action; the completed `ANALYZED` view adds ranked strategies, professional requirements, repair-versus-replace factors, and limitations.

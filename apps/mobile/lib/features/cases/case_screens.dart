@@ -223,6 +223,22 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
     }
   }
 
+  Future<void> analyzeInvestigation() async {
+    if (investigation == null) return;
+    setState(() => investigationBusy = true);
+    try {
+      final value = await AppSession.instance.intelligence
+          .post('/investigations/${investigation!['id']}/reason');
+      if (mounted) {
+        setState(() => investigation = value as Map<String, dynamic>);
+      }
+    } catch (e) {
+      if (mounted) setState(() => message = e.toString());
+    } finally {
+      if (mounted) setState(() => investigationBusy = false);
+    }
+  }
+
   Future<void> upload() async {
     final result = await FilePicker.platform.pickFiles(withData: true);
     if (result == null) return;
@@ -282,7 +298,8 @@ class _CaseDetailScreenState extends State<CaseDetailScreen> {
                   busy: investigationBusy,
                   answer: answer,
                   onStart: startInvestigation,
-                  onAnswer: submitObservation),
+                  onAnswer: submitObservation,
+                  onAnalyze: analyzeInvestigation),
               const Divider(height: 36),
               Text('Evidence', style: Theme.of(context).textTheme.titleLarge),
               if (message != null)
@@ -311,12 +328,14 @@ class _InvestigationCard extends StatelessWidget {
       required this.busy,
       required this.answer,
       required this.onStart,
-      required this.onAnswer});
+      required this.onAnswer,
+      required this.onAnalyze});
   final Map<String, dynamic>? state;
   final bool busy;
   final TextEditingController answer;
   final VoidCallback onStart;
   final VoidCallback onAnswer;
+  final VoidCallback onAnalyze;
 
   @override
   Widget build(BuildContext context) {
@@ -341,6 +360,7 @@ class _InvestigationCard extends StatelessWidget {
     final status = state!['status'] as String;
     final observations = state!['observations'] as List<dynamic>;
     final citations = state!['citations'] as List<dynamic>;
+    final reasoning = state!['reasoning'] as Map<String, dynamic>?;
     return Card(
         child: Padding(
             padding: const EdgeInsets.all(16),
@@ -384,6 +404,15 @@ class _InvestigationCard extends StatelessWidget {
                         onPressed: busy ? null : onAnswer,
                         child: Text(busy ? 'Saving…' : 'Submit observation'))
                   ],
+                  if (status == 'READY_FOR_REASONING') ...[
+                    const Divider(),
+                    FilledButton.icon(
+                        onPressed: busy ? null : onAnalyze,
+                        icon: const Icon(Icons.psychology_outlined),
+                        label: Text(busy
+                            ? 'Calculating…'
+                            : 'Calculate diagnosis and repair options'))
+                  ],
                   if ((state!['evidence_summary'] as String).isNotEmpty) ...[
                     const Divider(),
                     Text('Grounded evidence',
@@ -400,6 +429,50 @@ class _InvestigationCard extends StatelessWidget {
                           '• ${citation['title']} • chunk ${citation['chunk']}',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis)
+                  ],
+                  if (reasoning != null) ...[
+                    const Divider(),
+                    Text('Probable causes',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const Text(
+                        'Evidence-based estimates—not proof. Verify before replacing parts.'),
+                    const SizedBox(height: 8),
+                    for (final item in reasoning['hypotheses'] as List<dynamic>)
+                      ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: CircleAvatar(
+                              child: Text(
+                                  '${((item['probability'] as num) * 100).round()}%')),
+                          title: Text(item['title'] as String),
+                          subtitle: Text(
+                              'Supports: ${(item['supporting_evidence'] as List<dynamic>).join(', ').isEmpty ? 'no strong match yet' : (item['supporting_evidence'] as List<dynamic>).join(', ')}')),
+                    if (reasoning['next_best_test'] != null) ...[
+                      Text('Next-best safe test',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      Text((reasoning['next_best_test']
+                          as Map<String, dynamic>)['question'] as String),
+                      const SizedBox(height: 12)
+                    ],
+                    if (status == 'ANALYZED') ...[
+                      Text('Ranked strategies',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      for (final item
+                          in reasoning['strategies'] as List<dynamic>)
+                        ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading:
+                                CircleAvatar(child: Text('${item['rank']}')),
+                            title: Text(item['title'] as String),
+                            subtitle: Text(
+                                '${item['action']}\n${item['cost_band']} cost • ${item['requires_professional'] == true ? 'Professional required' : 'User-safe check'}')),
+                      Text('Repair versus replace',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(reasoning['repair_vs_replace'] as String),
+                      const SizedBox(height: 8),
+                      for (final limitation
+                          in reasoning['limitations'] as List<dynamic>)
+                        Text('• $limitation')
+                    ]
                   ]
                 ])));
   }

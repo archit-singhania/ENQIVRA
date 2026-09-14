@@ -51,6 +51,11 @@ class KnowledgeStore:
                 );
                 """
             )
+            columns = {
+                row["name"] for row in self.connection.execute("PRAGMA table_info(investigations)")
+            }
+            if "reasoning_json" not in columns:
+                self.connection.execute("ALTER TABLE investigations ADD COLUMN reasoning_json TEXT")
 
     def _seed(self) -> None:
         if self.connection.execute("SELECT COUNT(*) FROM knowledge_documents").fetchone()[0]:

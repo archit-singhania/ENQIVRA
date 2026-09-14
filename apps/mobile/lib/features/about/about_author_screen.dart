@@ -5,6 +5,7 @@ import 'package:enqivra_mobile/core/theme.dart';
 import 'package:enqivra_mobile/shared/widgets/aurora_background.dart';
 import 'package:enqivra_mobile/shared/widgets/glass_panel.dart';
 import 'package:enqivra_mobile/shared/widgets/enqivra_logo.dart';
+import 'package:enqivra_mobile/shared/widgets/theme_toggle_button.dart';
 
 /// A premium "about the author / maker" screen. Pure UI, no state or
 /// network calls — edit the placeholder strings below with your real
@@ -30,8 +31,10 @@ class AboutAuthorScreen extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      backgroundColor: AppColors.background,
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Scaffold(
+      backgroundColor: palette.background,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
@@ -39,6 +42,12 @@ class AboutAuthorScreen extends StatelessWidget {
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/welcome'),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: ThemeToggleButton(),
+          ),
+        ],
       ),
       body: AuroraBackground(
           child: SafeArea(
@@ -60,16 +69,16 @@ class AboutAuthorScreen extends StatelessWidget {
                                   height: 96,
                                   decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      gradient: AppGradients.accentButton,
+                                      gradient: palette.accentButton,
                                       boxShadow: [
                                         BoxShadow(
-                                            color: AppColors.violet
-                                                .withOpacity(0.45),
+                                            color:
+                                                palette.violet.withOpacity(0.45),
                                             blurRadius: 36,
                                             spreadRadius: 2)
                                       ]),
-                                  child: const Icon(Icons.person_rounded,
-                                      color: AppColors.onPrimary, size: 44)),
+                                  child: Icon(Icons.person_rounded,
+                                      color: palette.onPrimary, size: 44)),
                               const SizedBox(height: 18),
                               Text(_authorName,
                                   textAlign: TextAlign.center,
@@ -82,7 +91,7 @@ class AboutAuthorScreen extends StatelessWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
-                                      ?.copyWith(color: AppColors.primaryBright)),
+                                      ?.copyWith(color: palette.primaryBright)),
                               const SizedBox(height: 20),
                               Text(_authorBio,
                                   textAlign: TextAlign.center,
@@ -98,17 +107,17 @@ class AboutAuthorScreen extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 16, vertical: 10),
                                           decoration: BoxDecoration(
-                                              color: AppColors.glassFill,
+                                              color: palette.glassFill,
                                               borderRadius:
                                                   BorderRadius.circular(999),
                                               border: Border.all(
-                                                  color: AppColors.glassBorder)),
+                                                  color: palette.glassBorder)),
                                           child: Text(skill,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodySmall
                                                   ?.copyWith(
-                                                      color: AppColors
+                                                      color: palette
                                                           .textPrimary)))
                                   ])
                             ]))
@@ -128,5 +137,8 @@ class AboutAuthorScreen extends StatelessWidget {
                                 label: const Text('Back to home')))
                         .animate()
                         .fadeIn(delay: 300.ms, duration: 500.ms),
-                  ])))));
+                  ]))),
+      ),
+    );
+  }
 }

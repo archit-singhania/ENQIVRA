@@ -1,48 +1,220 @@
 import 'package:enqivra_mobile/shared/widgets/enqivra_scaffold.dart';
+import 'package:enqivra_mobile/shared/widgets/glass_panel.dart';
+import 'package:enqivra_mobile/shared/widgets/sign_out_overlay.dart';
+import 'package:enqivra_mobile/core/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:enqivra_mobile/core/session/app_session.dart';
 import 'package:go_router/go_router.dart';
 
+/// Rearranged (not just re-themed) from the original flat list: a hero
+/// identity panel up top, sectioned glass groups ('Workspace', 'About')
+/// instead of one undifferentiated list, and sign-out routed through the
+/// animated [performSignOut] transition. `AppSession` reads/writes and all
+/// navigation destinations are unchanged.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => EnqivraScaffold(
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final rawName = AppSession.instance.userName;
+    final name =
+        (rawName != null && rawName.trim().isNotEmpty) ? rawName.trim() : 'ENQIVRA user';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'E';
+    final role = AppSession.instance.organizationRole;
+
+    return EnqivraScaffold(
       title: 'Profile',
-      child: Column(children: [
-        const CircleAvatar(radius: 38, child: Icon(Icons.person, size: 38)),
-        const SizedBox(height: 16),
-        Text(AppSession.instance.userName ?? 'ENQIVRA user'),
-        ListTile(
-            leading: Icon(Icons.business_outlined),
-            title: Text('Organization'),
-            subtitle: Text('Manage members and roles'),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () => context.push('/profile/members')),
-        ListTile(
-            leading: Icon(Icons.swap_horiz),
-            title: Text('Workspaces'),
-            subtitle: Text('Switch organizations or accept an invitation'),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () => context.push('/profile/workspaces')),
-        const ListTile(
-            leading: Icon(Icons.security_outlined),
-            title: Text('Security'),
-            subtitle: Text('JWT access and rotating refresh tokens')),
-        ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About the author'),
-            subtitle: const Text('Who built ENQIVRA'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/about-author')),
-        const Spacer(),
-        OutlinedButton.icon(
-            onPressed: () async {
-              await AppSession.instance.logout();
-              if (context.mounted) context.go('/login');
-            },
-            icon: const Icon(Icons.logout),
-            label: const Text('Sign out'))
-      ]));
+      child: ListView(children: [
+        _ProfileHero(name: name, initial: initial, role: role)
+            .animate()
+            .fadeIn(duration: 400.ms)
+            .slideY(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
+        const SizedBox(height: 28),
+        Text('Workspace', style: Theme.of(context).textTheme.titleSmall)
+            .animate()
+            .fadeIn(delay: 100.ms, duration: 350.ms),
+        const SizedBox(height: 10),
+        GlassPanel(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(children: [
+                  _ProfileRow(
+                      icon: Icons.business_outlined,
+                      title: 'Organization',
+                      subtitle: 'Manage members and roles',
+                      onTap: () => context.push('/profile/members')),
+                  _RowDivider(palette: palette),
+                  _ProfileRow(
+                      icon: Icons.swap_horiz_rounded,
+                      title: 'Workspaces',
+                      subtitle: 'Switch organizations or accept an invitation',
+                      onTap: () => context.push('/profile/workspaces')),
+                ]))
+            .animate()
+            .fadeIn(delay: 150.ms, duration: 400.ms)
+            .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic),
+        const SizedBox(height: 24),
+        Text('About', style: Theme.of(context).textTheme.titleSmall)
+            .animate()
+            .fadeIn(delay: 200.ms, duration: 350.ms),
+        const SizedBox(height: 10),
+        GlassPanel(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(children: [
+                  const _ProfileRow(
+                      icon: Icons.security_outlined,
+                      title: 'Security',
+                      subtitle: 'JWT access and rotating refresh tokens'),
+                  _RowDivider(palette: palette),
+                  _ProfileRow(
+                      icon: Icons.info_outline_rounded,
+                      title: 'About the author',
+                      subtitle: 'Who built ENQIVRA',
+                      onTap: () => context.push('/about-author')),
+                ]))
+            .animate()
+            .fadeIn(delay: 250.ms, duration: 400.ms)
+            .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic),
+        const SizedBox(height: 30),
+        SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: OutlinedButton.icon(
+                    onPressed: () => performSignOut(context),
+                    icon: Icon(Icons.logout_rounded, color: palette.danger),
+                    label: Text('Sign out', style: TextStyle(color: palette.danger))))
+            .animate()
+            .fadeIn(delay: 320.ms, duration: 400.ms),
+        const SizedBox(height: 12),
+      ]),
+    );
+  }
+}
+
+class _RowDivider extends StatelessWidget {
+  const _RowDivider({required this.palette});
+  final AppPalette palette;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Divider(height: 1, color: palette.glassBorder));
+}
+
+/// Identity panel replacing the old bare CircleAvatar + Text pair — a
+/// gradient avatar (matching Home's greeting header) plus a role chip.
+class _ProfileHero extends StatelessWidget {
+  const _ProfileHero({required this.name, required this.initial, this.role});
+  final String name;
+  final String initial;
+  final String? role;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return GlassPanel(
+      padding: const EdgeInsets.all(24),
+      child: Row(children: [
+        Container(
+          width: 68,
+          height: 68,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: palette.primaryButton,
+            boxShadow: [
+              BoxShadow(
+                  color: palette.primary.withOpacity(0.35),
+                  blurRadius: 22,
+                  offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Text(initial,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: palette.onPrimary, fontWeight: FontWeight.w700)),
+        ),
+        const SizedBox(width: 18),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(name,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            if (role != null) ...[
+              const SizedBox(height: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                    color: palette.primary.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(999)),
+                child: Text(role!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: palette.primaryBright,
+                        fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+/// A single sectioned row (icon chip + title/subtitle + chevron),
+/// replacing the plain default `ListTile`s so the whole screen reads as
+/// one coherent glass surface instead of a bare Material list.
+class _ProfileRow extends StatelessWidget {
+  const _ProfileRow(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      this.onTap});
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(children: [
+            Container(
+              width: 42,
+              height: 42,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: palette.primary.withOpacity(0.14),
+                  borderRadius: BorderRadius.circular(13)),
+              child: Icon(icon, color: palette.primary, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 2),
+                Text(subtitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: palette.textMuted)),
+              ]),
+            ),
+            if (onTap != null)
+              Icon(Icons.chevron_right_rounded, color: palette.textMuted),
+          ]),
+        ),
+      ),
+    );
+  }
 }
 
 class OrganizationMembersScreen extends StatefulWidget {

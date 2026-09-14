@@ -6,26 +6,29 @@ import 'package:enqivra_mobile/core/theme.dart';
 import 'package:enqivra_mobile/shared/widgets/aurora_background.dart';
 import 'package:enqivra_mobile/shared/widgets/glass_panel.dart';
 import 'package:enqivra_mobile/shared/widgets/enqivra_logo.dart';
+import 'package:enqivra_mobile/shared/widgets/theme_toggle_button.dart';
 
 /// Small frosted-glass "back to home" affordance used on both auth
 /// screens so a visitor can always retreat to the welcome/landing screen.
 class _BackHomeButton extends StatelessWidget {
   const _BackHomeButton();
   @override
-  Widget build(BuildContext context) => Align(
-      alignment: Alignment.centerLeft,
-      child: Material(
-          color: AppColors.glassFill,
-          shape: const CircleBorder(
-              side: BorderSide(color: AppColors.glassBorder)),
-          child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () =>
-                  context.canPop() ? context.pop() : context.go('/welcome'),
-              child: const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Icon(Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary, size: 20)))));
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Material(
+      color: palette.glassFill,
+      shape: CircleBorder(side: BorderSide(color: palette.glassBorder)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () =>
+              context.canPop() ? context.pop() : context.go('/welcome'),
+          child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(Icons.arrow_back_rounded,
+                  color: palette.textPrimary, size: 20))),
+    );
+  }
 }
 
 class LoginScreen extends StatefulWidget {
@@ -64,8 +67,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      backgroundColor: AppColors.background,
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Scaffold(
+      backgroundColor: palette.background,
       body: AuroraBackground(
           child: SafeArea(
               child: Center(
@@ -76,9 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                          const _BackHomeButton()
-                          .animate()
-                      .fadeIn(duration: 400.ms),
+                          Row(children: [
+                            const _BackHomeButton(),
+                            const Spacer(),
+                            const ThemeToggleButton(),
+                          ]).animate().fadeIn(duration: 400.ms),
                       const SizedBox(height: 20),
                       Center(
                       child: const EnqivraLogo(size: 76))
@@ -95,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 .labelLarge
                                                 ?.copyWith(
                                                     letterSpacing: 6,
-                                                    color: AppColors.primaryBright)))
+                                                    color: palette.primaryBright)))
                                     .animate()
                                     .fadeIn(delay: 150.ms, duration: 400.ms),
                                 const SizedBox(height: 36),
@@ -146,13 +153,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                               child: FilledButton(
                                                   onPressed: busy ? null : submit,
                                                   child: busy
-                                                      ? const SizedBox(
+                                                      ? SizedBox(
                                                           height: 20,
                                                           width: 20,
                                                           child: CircularProgressIndicator(
                                                               strokeWidth: 2.4,
                                                               color:
-                                                                  AppColors.onPrimary))
+                                                                  palette.onPrimary))
                                                       : const Text('Sign in'))),
                                           Center(
                                               child: TextButton(
@@ -167,7 +174,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         begin: 0.06,
                                         end: 0,
                                         curve: Curves.easeOutCubic)
-                              ])))))));
+                              ])))))),
+    );
+  }
 }
 
 class RegisterScreen extends StatefulWidget {
@@ -204,13 +213,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      backgroundColor: AppColors.background,
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Scaffold(
+      backgroundColor: palette.background,
       appBar: AppBar(
           leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
               onPressed: () =>
-                  context.canPop() ? context.pop() : context.go('/welcome'))),
+                  context.canPop() ? context.pop() : context.go('/welcome')),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: ThemeToggleButton(),
+            ),
+          ]),
       body: AuroraBackground(
           child: SafeArea(
               child: ListView(
@@ -275,5 +292,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 .animate()
                 .fadeIn(duration: 450.ms)
                 .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic)
-                  ]))));
+                  ]))),
+    );
+  }
 }

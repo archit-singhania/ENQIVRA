@@ -5,7 +5,8 @@ import 'package:enqivra_mobile/core/session/app_session.dart';
 import 'package:enqivra_mobile/core/theme.dart';
 import 'package:enqivra_mobile/shared/widgets/aurora_background.dart';
 import 'package:enqivra_mobile/shared/widgets/glass_panel.dart';
-import 'package:enqivra_mobile/shared/widgets/enqivra_logo.dart';
+import 'package:enqivra_mobile/shared/widgets/logo_reveal.dart';
+import 'package:enqivra_mobile/shared/widgets/theme_toggle_button.dart';
 
 /// The app's first-impression marketing / welcome screen. Pure UI: the only
 /// side effect is the same silent "is there already a session" check the
@@ -19,9 +20,9 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _tilt = AnimationController(
-      vsync: this, duration: const Duration(seconds: 7))
-    ..repeat(reverse: true);
+  late final AnimationController _tilt =
+      AnimationController(vsync: this, duration: const Duration(seconds: 7))
+        ..repeat(reverse: true);
 
   @override
   void initState() {
@@ -38,82 +39,107 @@ class _LandingScreenState extends State<LandingScreen>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      backgroundColor: AppColors.background,
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Scaffold(
+      backgroundColor: palette.background,
       body: AuroraBackground(
-          child: SafeArea(
-              child: LayoutBuilder(builder: (context, constraints) {
-        final compact = constraints.maxHeight < 720;
-        return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
-            child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(minHeight: constraints.maxHeight - 52),
-                child: Column(children: [
-                  SizedBox(height: compact ? 8 : 28),
-                  _TiltingMark(controller: _tilt)
-                      .animate()
-                      .fadeIn(duration: 650.ms)
-                      .scale(
-                          begin: const Offset(0.68, 0.68),
-                          curve: Curves.easeOutBack,
-                          duration: 750.ms),
-                  SizedBox(height: compact ? 22 : 34),
-                  Text('ENQIVRA',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(fontSize: compact ? 38 : 46))
-                      .animate()
-                      .fadeIn(delay: 150.ms, duration: 500.ms)
-                      .slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
-                  const SizedBox(height: 12),
-                  Text('Understand what the physical world is telling you.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(color: AppColors.textSecondary))
-                      .animate()
-                      .fadeIn(delay: 250.ms, duration: 500.ms)
-                      .slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
-                  SizedBox(height: compact ? 26 : 40),
-                  const _FeatureRow()
-                      .animate()
-                      .fadeIn(delay: 350.ms, duration: 500.ms),
-                  SizedBox(height: compact ? 26 : 40),
-                  GlassPanel(
-                          padding: const EdgeInsets.all(22),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(
-                                    height: 56,
-                                    child: FilledButton(
-                                        onPressed: () =>
-                                            context.push('/register'),
-                                        child: const Text('Get started'))),
-                                const SizedBox(height: 12),
-                                SizedBox(
-                                    height: 56,
-                                    child: OutlinedButton(
-                                        onPressed: () =>
-                                            context.push('/login'),
-                                        child: const Text(
-                                            'I already have an account'))),
-                              ]))
-                      .animate()
-                      .fadeIn(delay: 450.ms, duration: 550.ms)
-                      .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-                  SizedBox(height: compact ? 30 : 52),
-                  TextButton(
-                          onPressed: () => context.push('/about-author'),
-                          child: const Text('About the author'))
-                      .animate()
-                      .fadeIn(delay: 600.ms, duration: 500.ms),
-                ])));
-      }))));
+        child: SafeArea(
+          child: Stack(children: [
+            LayoutBuilder(builder: (context, constraints) {
+              final compact = constraints.maxHeight < 720;
+              return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+                  child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight - 52),
+                      child: Column(children: [
+                        SizedBox(height: compact ? 40 : 56),
+                        // The tilt controller keeps a slow perpetual 3D rock
+                        // going; the ring-draw reveal (a one-shot "materialize"
+                        // in the spirit of an SVG stroke-draw intro) owns the
+                        // entrance instead of a plain fade/scale.
+                        _TiltingMark(controller: _tilt),
+                        SizedBox(height: compact ? 22 : 34),
+                        Text('ENQIVRA',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayLarge
+                                    ?.copyWith(fontSize: compact ? 38 : 46))
+                            .animate()
+                            .fadeIn(delay: 150.ms, duration: 500.ms)
+                            .slideY(
+                                begin: 0.12,
+                                end: 0,
+                                curve: Curves.easeOutCubic),
+                        const SizedBox(height: 12),
+                        Text('Understand what the physical world is telling you.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(color: palette.textSecondary))
+                            .animate()
+                            .fadeIn(delay: 250.ms, duration: 500.ms)
+                            .slideY(
+                                begin: 0.12,
+                                end: 0,
+                                curve: Curves.easeOutCubic),
+                        SizedBox(height: compact ? 26 : 40),
+                        const _FeatureRow()
+                            .animate()
+                            .fadeIn(delay: 350.ms, duration: 500.ms),
+                        SizedBox(height: compact ? 26 : 40),
+                        GlassPanel(
+                                padding: const EdgeInsets.all(22),
+                                child:
+                                    Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                      SizedBox(
+                                          height: 56,
+                                          child: FilledButton(
+                                              onPressed: () =>
+                                                  context.push('/register'),
+                                              child:
+                                                  const Text('Get started'))),
+                                      const SizedBox(height: 12),
+                                      SizedBox(
+                                          height: 56,
+                                          child: OutlinedButton(
+                                              onPressed: () =>
+                                                  context.push('/login'),
+                                              child: const Text(
+                                                  'I already have an account'))),
+                                    ]))
+                            .animate()
+                            .fadeIn(delay: 450.ms, duration: 550.ms)
+                            .slideY(
+                                begin: 0.08,
+                                end: 0,
+                                curve: Curves.easeOutCubic),
+                        SizedBox(height: compact ? 30 : 52),
+                        TextButton(
+                                onPressed: () => context.push('/about-author'),
+                                child: const Text('About the author'))
+                            .animate()
+                            .fadeIn(delay: 600.ms, duration: 500.ms),
+                      ])));
+            }),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: const ThemeToggleButton()
+                  .animate()
+                  .fadeIn(delay: 200.ms, duration: 400.ms),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
 }
 
 /// Gives the logo a slow, gentle 3D rock — Matrix4 perspective driven by
@@ -135,7 +161,7 @@ class _TiltingMark extends StatelessWidget {
               ..rotateX(-angle * 0.5),
             child: child);
       },
-      child: const EnqivraLogo(size: 136));
+      child: const EnqivraLogoReveal(size: 136));
 }
 
 class _FeatureRow extends StatelessWidget {
@@ -148,31 +174,31 @@ class _FeatureRow extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        for (final item in _items)
-          Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.glassFill,
-                    border: Border.all(color: AppColors.glassBorder),
-                    boxShadow: [
-                      BoxShadow(
-                          color: AppColors.primary.withOpacity(0.18),
-                          blurRadius: 18)
-                    ]),
-                child:
-                    Icon(item.$1, color: AppColors.primaryBright, size: 22)),
-            const SizedBox(height: 8),
-            Text(item.$2,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(fontWeight: FontWeight.w600)),
-          ])
-      ]);
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      for (final item in _items)
+        Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: palette.glassFill,
+                  border: Border.all(color: palette.glassBorder),
+                  boxShadow: [
+                    BoxShadow(
+                        color: palette.primary.withOpacity(0.18),
+                        blurRadius: 18)
+                  ]),
+              child: Icon(item.$1, color: palette.primaryBright, size: 22)),
+          const SizedBox(height: 8),
+          Text(item.$2,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+        ])
+    ]);
+  }
 }

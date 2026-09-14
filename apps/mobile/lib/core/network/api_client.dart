@@ -75,6 +75,9 @@ class ApiClient {
       Uint8List bytes, String filename, String evidenceType) async {
     final request = http.MultipartRequest(
         'POST', Uri.parse('$intelligenceBaseUrl/evidence/analyze'));
+    if (accessToken != null) {
+      request.headers['Authorization'] = 'Bearer $accessToken';
+    }
     request.fields['evidence_type'] = evidenceType;
     request.files
         .add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
@@ -94,6 +97,9 @@ class ApiClient {
       String title, String domain, String? equipmentCode) async {
     final request = http.MultipartRequest(
         'POST', Uri.parse('$baseUrl/knowledge/documents'));
+    if (accessToken != null) {
+      request.headers['Authorization'] = 'Bearer $accessToken';
+    }
     request.fields['title'] = title;
     request.fields['domain'] = domain;
     if (equipmentCode != null && equipmentCode.isNotEmpty) {

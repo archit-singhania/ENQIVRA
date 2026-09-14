@@ -1,0 +1,22 @@
+{$ENQIVRA_HOST:localhost} {
+  encode zstd gzip
+  header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  handle /api/v1/evidence/* {
+    reverse_proxy intelligence-api:8000
+  }
+  handle /api/v1/investigations/* {
+    reverse_proxy intelligence-api:8000
+  }
+  handle /api/v1/knowledge/* {
+    reverse_proxy intelligence-api:8000
+  }
+  handle /api/v1/twins/* {
+    reverse_proxy intelligence-api:8000
+  }
+  handle /api/v1/model-lifecycle/* {
+    reverse_proxy intelligence-api:8000
+  }
+  handle {
+    reverse_proxy core-api:8080
+  }
+}

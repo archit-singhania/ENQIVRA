@@ -36,6 +36,7 @@ class AppSession {
   Future<void> authenticate(String path, Map<String, dynamic> body) async {
     final result = await api.post(path, body: body) as Map<String, dynamic>;
     api.accessToken = result['accessToken'] as String;
+    intelligence.accessToken = api.accessToken;
     organizationId =
         (result['organization'] as Map<String, dynamic>)['id'] as String;
     organizationRole =
@@ -52,6 +53,7 @@ class AppSession {
 
   Future<void> logout() async {
     api.accessToken = null;
+    intelligence.accessToken = null;
     organizationId = null;
     organizationRole = null;
     userName = null;

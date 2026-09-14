@@ -1,5 +1,7 @@
+import httpx
 from fastapi import APIRouter, HTTPException, Request
 
+from enqivra.core.config import get_settings
 from enqivra.schemas.investigation import (
     InvestigationView,
     ObservationRequest,
@@ -11,6 +13,18 @@ router = APIRouter(prefix="/investigations", tags=["diagnostic-investigations"])
 
 @router.post("", response_model=InvestigationView)
 async def start(request: Request, payload: StartInvestigation) -> InvestigationView:
+    settings = get_settings()
+    if settings.enforce_core_ownership:
+        try:
+            async with httpx.AsyncClient(timeout=3) as client:
+                response = await client.get(
+                    f"{settings.core_api_url}/cases/{payload.case_id}/evidence",
+                    headers={"Authorization": request.headers.get("authorization", "")},
+                )
+            if response.status_code != 200:
+                raise HTTPException(status_code=403, detail="Case access denied")
+        except httpx.HTTPError as exc:
+            raise HTTPException(status_code=503, detail="Core authorization unavailable") from exc
     return request.app.state.investigations.start(payload)
 
 

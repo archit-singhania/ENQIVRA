@@ -14,7 +14,7 @@
 | 7 | Ranked resolutions and repair-vs-replace | Complete |
 | 8 | Digital twins and prediction | Complete |
 | 9 | MLflow/DVC evaluation and model lifecycle | Complete |
-| 10 | Observability, load/security testing, deployment | Not started |
+| 10 | Observability, load/security testing, deployment | Complete |
 
 ## What a user can see now
 
@@ -84,3 +84,9 @@ The Flutter equipment-detail page displays the twin and permits condition readin
 Implemented: a versioned diagnostic evaluation dataset, parameter file, reproducible DVC pipeline, standalone evaluation runner, local MLflow logging when the optional FOC MLOps dependencies are installed, persistent SQLite evaluation/model registry, top-1 accuracy and mean-confidence metrics, comparison with the preceding run, regression detection, CANDIDATE/STAGING/PRODUCTION/ARCHIVED stages, a minimum production quality gate, and automatic archival of an older production version.
 
 The built-in v1 dataset currently contains four representative regression cases and scores 100%; this is a software regression baseline, not proof of real-world clinical-grade accuracy. Production promotion requires at least 60% on the selected dataset, while larger curated and field-labelled datasets remain ongoing operational work.
+
+## Phase 10 audit
+
+Implemented: shared Core JWT verification on the Intelligence API; mobile propagation of access tokens to every Intelligence request and multipart upload; production-enforced Core ownership checks for asset twins and diagnostic cases; per-client rate limiting; request-size limits; strict CORS configuration; no-store, content-type, frame, referrer, and browser-permission security headers; non-root/read-only Intelligence container execution; TLS reverse-proxy configuration; graceful shutdown; JSON logging with correlated `X-Request-ID`; liveness, readiness, dependency health, and Prometheus-compatible metrics; bounded load-smoke tooling; dependency and filesystem/container scanning in CI; production secret templates; and backup, restoration, alerting, and incident-response guidance.
+
+Verified locally: 13 Intelligence tests, 10 Core tests, Flutter widget tests, and an Android debug APK build. CI security scanners and the load script are configured but their results depend on running them in GitHub Actions or against a live deployed stack. The repository is production-deployable infrastructure, not a claim that an external production environment, DNS, TLS certificate, backups, alerts, privacy policy, or regulatory approval has already been provisioned.

@@ -13,6 +13,7 @@ from enqivra.api.lifecycle import router as lifecycle_router
 from enqivra.api.twins import router as twins_router
 from enqivra.core.config import get_settings
 from enqivra.core.logging import configure_logging
+from enqivra.core.middleware import ProductionMiddleware
 from enqivra.repositories.connections import Connections
 from enqivra.services.investigation import InvestigationService
 from enqivra.services.knowledge import KnowledgeStore
@@ -39,6 +40,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+app.add_middleware(ProductionMiddleware, settings=settings)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",

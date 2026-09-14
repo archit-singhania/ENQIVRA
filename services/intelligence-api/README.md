@@ -6,6 +6,8 @@ Phase 4 adds local PDF/TXT/Markdown ingestion and grounded retrieval with page/c
 
 Phase 8 adds per-asset digital-twin readings, health state, trends, threshold forecasts, and confidence/data-sufficiency reporting. Phase 9 adds the local model registry, evaluation/drift API, promotion gates, and a reproducible `dvc.yaml` pipeline. Run the lightweight evaluator with `python scripts/evaluate.py`. For DVC and local MLflow tracking, install `pip install -e ".[mlops]"`, then run `dvc repro`.
 
+Phase 10 adds production JWT enforcement, Core ownership verification, rate and size limits, request IDs, structured logs, readiness and Prometheus metrics, hardened container settings, CI security scanning, and load-smoke tooling. Direct host-mode development leaves `AUTH_REQUIRED=false`; Docker Compose defaults it to true and requires the same `JWT_SECRET` as Core.
+
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m uvicorn enqivra.main:app --reload --port 8000

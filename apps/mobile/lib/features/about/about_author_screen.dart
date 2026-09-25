@@ -73,7 +73,7 @@ class AboutAuthorScreen extends StatelessWidget {
                                       boxShadow: [
                                         BoxShadow(
                                             color:
-                                                palette.violet.withOpacity(0.45),
+                                                palette.violet.withValues(alpha: 0.45),
                                             blurRadius: 36,
                                             spreadRadius: 2)
                                       ]),

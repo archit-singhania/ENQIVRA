@@ -188,7 +188,7 @@ class _FeatureRow extends StatelessWidget {
                   border: Border.all(color: palette.glassBorder),
                   boxShadow: [
                     BoxShadow(
-                        color: palette.primary.withOpacity(0.18),
+                        color: palette.primary.withValues(alpha: 0.18),
                         blurRadius: 18)
                   ]),
               child: Icon(item.$1, color: palette.primaryBright, size: 22)),

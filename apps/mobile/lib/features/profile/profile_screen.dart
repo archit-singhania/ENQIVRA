@@ -124,7 +124,7 @@ class _ProfileHero extends StatelessWidget {
             gradient: palette.primaryButton,
             boxShadow: [
               BoxShadow(
-                  color: palette.primary.withOpacity(0.35),
+                  color: palette.primary.withValues(alpha: 0.35),
                   blurRadius: 22,
                   offset: const Offset(0, 10)),
             ],
@@ -147,7 +147,7 @@ class _ProfileHero extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                    color: palette.primary.withOpacity(0.14),
+                    color: palette.primary.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(999)),
                 child: Text(role!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -192,7 +192,7 @@ class _ProfileRow extends StatelessWidget {
               height: 42,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: palette.primary.withOpacity(0.14),
+                  color: palette.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(13)),
               child: Icon(icon, color: palette.primary, size: 20),
             ),

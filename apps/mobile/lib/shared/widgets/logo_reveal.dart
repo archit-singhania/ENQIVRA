@@ -115,7 +115,7 @@ class _RingPainter extends CustomPainter {
     // Whole-layer opacity: saveLayer with an alpha-only paint is the
     // standard way to fade a shader-painted stroke uniformly, since a
     // shader on the drawing Paint ignores that Paint's own color/alpha.
-    canvas.saveLayer(rect, Paint()..color = Colors.black.withOpacity(opacity));
+    canvas.saveLayer(rect, Paint()..color = Colors.black.withValues(alpha: opacity));
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.6
@@ -123,7 +123,7 @@ class _RingPainter extends CustomPainter {
       ..shader = SweepGradient(
         startAngle: -pi / 2,
         endAngle: -pi / 2 + 2 * pi,
-        colors: [color, secondary, color.withOpacity(0)],
+        colors: [color, secondary, color.withValues(alpha: 0)],
         stops: const [0.0, 0.6, 1.0],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
     canvas.drawArc(

@@ -311,7 +311,9 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
     if (submit != true ||
         metric.text.trim().isEmpty ||
         double.tryParse(value.text) == null ||
-        unit.text.trim().isEmpty) return;
+        unit.text.trim().isEmpty) {
+      return;
+    }
     await AppSession.instance.intelligence
         .post('/twins/${widget.asset['id']}/snapshots', body: {
       'metric': metric.text.trim(),

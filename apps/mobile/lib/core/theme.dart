@@ -340,9 +340,9 @@ ThemeData _buildTheme(AppPalette p) {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: p.primary,
-        disabledBackgroundColor: p.primary.withOpacity(0.35),
+        disabledBackgroundColor: p.primary.withValues(alpha: 0.35),
         foregroundColor: p.onPrimary,
-        disabledForegroundColor: p.onPrimary.withOpacity(0.6),
+        disabledForegroundColor: p.onPrimary.withValues(alpha: 0.6),
         textStyle: textTheme.labelLarge,
         padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -403,7 +403,7 @@ ThemeData _buildTheme(AppPalette p) {
     ),
     chipTheme: base.chipTheme.copyWith(
       backgroundColor: p.glassFill,
-      selectedColor: p.primary.withOpacity(0.22),
+      selectedColor: p.primary.withValues(alpha: 0.22),
       side: BorderSide(color: p.glassBorder),
       labelStyle: textTheme.bodyMedium?.copyWith(color: p.textPrimary),
       secondaryLabelStyle: textTheme.bodyMedium?.copyWith(color: p.primaryBright),
@@ -413,7 +413,7 @@ ThemeData _buildTheme(AppPalette p) {
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      indicatorColor: p.primary.withOpacity(0.18),
+      indicatorColor: p.primary.withValues(alpha: 0.18),
       labelTextStyle: WidgetStatePropertyAll(
           textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
     ),

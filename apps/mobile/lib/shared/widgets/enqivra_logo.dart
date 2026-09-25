@@ -28,11 +28,11 @@ class EnqivraLogo extends StatelessWidget {
         boxShadow: glow
             ? [
                 BoxShadow(
-                    color: palette.primary.withOpacity(0.55),
+                    color: palette.primary.withValues(alpha: 0.55),
                     blurRadius: size * 0.7,
                     spreadRadius: size * 0.02),
                 BoxShadow(
-                    color: palette.violet.withOpacity(0.18),
+                    color: palette.violet.withValues(alpha: 0.18),
                     blurRadius: size * 0.9,
                     offset: Offset(0, size * 0.12)),
               ]

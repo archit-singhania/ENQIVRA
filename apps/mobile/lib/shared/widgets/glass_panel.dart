@@ -41,13 +41,13 @@ class GlassPanel extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  tint.withOpacity(opacity + 0.04),
-                  tint.withOpacity(opacity * 0.4),
+                  tint.withValues(alpha: opacity + 0.04),
+                  tint.withValues(alpha: opacity * 0.4),
                 ]),
             border: Border.all(color: palette.glassBorder, width: 1),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(dark ? 0.35 : 0.10),
+                  color: Colors.black.withValues(alpha: dark ? 0.35 : 0.10),
                   blurRadius: 30,
                   offset: const Offset(0, 18)),
             ],

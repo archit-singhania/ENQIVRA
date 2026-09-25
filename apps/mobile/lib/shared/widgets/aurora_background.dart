@@ -63,7 +63,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
                   size: 420,
                   blur: dark ? 72 : 92,
                   colors: [
-                    palette.primary.withOpacity(dark ? 0.32 : 0.16),
+                    palette.primary.withValues(alpha: dark ? 0.32 : 0.16),
                     Colors.transparent,
                   ],
                 ),
@@ -73,7 +73,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
                   size: 360,
                   blur: dark ? 72 : 92,
                   colors: [
-                    palette.violet.withOpacity(dark ? 0.22 : 0.14),
+                    palette.violet.withValues(alpha: dark ? 0.22 : 0.14),
                     Colors.transparent,
                   ],
                 ),
@@ -97,7 +97,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
                 size: 460,
                 blur: dark ? 58 : 78,
                 colors: [
-                  palette.primaryBright.withOpacity(dark ? 0.15 : 0.10),
+                  palette.primaryBright.withValues(alpha: dark ? 0.15 : 0.10),
                   Colors.transparent,
                 ],
               ),
@@ -148,7 +148,7 @@ class _AuroraBackgroundState extends State<AuroraBackground>
                 radius: 1.4,
                 colors: [
                   Colors.transparent,
-                  palette.background.withOpacity(0.55),
+                  palette.background.withValues(alpha: 0.55),
                   palette.background,
                 ],
                 stops: const [0.0, 0.6, 1.0],
@@ -207,7 +207,7 @@ class _GrainPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final random = Random(7);
-    final paint = Paint()..color = Colors.white.withOpacity(0.025);
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.025);
     const step = 6.0;
     for (double y = 0; y < size.height; y += step) {
       for (double x = 0; x < size.width; x += step) {

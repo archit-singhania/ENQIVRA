@@ -87,12 +87,12 @@ class _GlassDock extends StatelessWidget {
           child: Container(
             height: 74,
             decoration: BoxDecoration(
-              color: (dark ? Colors.white : Colors.black).withOpacity(0.06),
+              color: (dark ? Colors.white : Colors.black).withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: palette.glassBorder),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(dark ? 0.45 : 0.12),
+                    color: Colors.black.withValues(alpha: dark ? 0.45 : 0.12),
                     blurRadius: 30,
                     offset: const Offset(0, 14)),
               ],
@@ -139,7 +139,7 @@ class _DockItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
         decoration: BoxDecoration(
             color: selected
-                ? palette.primary.withOpacity(0.16)
+                ? palette.primary.withValues(alpha: 0.16)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(20)),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [

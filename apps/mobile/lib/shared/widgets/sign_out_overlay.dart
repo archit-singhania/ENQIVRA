@@ -25,7 +25,7 @@ Future<void> performSignOut(BuildContext context) async {
   // A small guaranteed-minimum dwell so the transition reads as an
   // intentional moment even when logout() resolves instantly (it's local
   // storage only — no network call).
-  await Future.delayed(const Duration(milliseconds: 650));
+  await Future<void>.delayed(const Duration(milliseconds: 650));
 
   if (context.mounted) {
     context.go('/login');

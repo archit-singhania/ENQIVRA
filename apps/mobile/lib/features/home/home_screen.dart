@@ -116,7 +116,7 @@ class _GreetingHeader extends StatelessWidget {
               gradient: palette.primaryButton,
               boxShadow: [
                 BoxShadow(
-                    color: palette.primary.withOpacity(0.35),
+                    color: palette.primary.withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8)),
               ],
@@ -170,7 +170,7 @@ class _HeroAction extends StatelessWidget {
             borderRadius: BorderRadius.circular(26),
             boxShadow: [
               BoxShadow(
-                  color: palette.primary.withOpacity(0.35),
+                  color: palette.primary.withValues(alpha: 0.35),
                   blurRadius: 30,
                   offset: const Offset(0, 14)),
             ],
@@ -181,7 +181,7 @@ class _HeroAction extends StatelessWidget {
               height: 52,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: palette.onPrimary.withOpacity(0.16),
+                  color: palette.onPrimary.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(17)),
               child: Icon(icon, color: palette.onPrimary, size: 25),
             ),
@@ -196,7 +196,7 @@ class _HeroAction extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: palette.onPrimary.withOpacity(0.85))),
+                        color: palette.onPrimary.withValues(alpha: 0.85))),
               ]),
             ),
             Icon(Icons.arrow_forward_rounded, color: palette.onPrimary),
@@ -237,7 +237,7 @@ class _BentoTile extends StatelessWidget {
               height: 40,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: palette.primary.withOpacity(0.14),
+                  color: palette.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(12)),
               child: Icon(icon, color: palette.primary, size: 20),
             ),
